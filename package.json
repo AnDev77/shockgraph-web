@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc --noEmit && vite build",
     "verify:dist": "node scripts/verify-dist.mjs",
+    "smoke:routes": "node scripts/smoke-routes.mjs",
     "check": "tsc --noEmit && eslint .",
     "test": "vitest run"
   },

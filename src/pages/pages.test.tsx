@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { AppLayout } from "../app/AppLayout";
 import { HomePage } from "./HomePage";
@@ -26,11 +26,26 @@ test("홈의 종목과 공식 원문, 연구 보류를 구분한다", () => {
 
 test("SPY 상세의 차트 출처와 토론 링크가 종목을 유지한다", () => {
   renderRoute("/assets/SPY");
+  expect(within(screen.getByRole("navigation", { name: "주요 메뉴" })).getByRole("link", { name: "토론" }))
+    .toHaveAttribute("href", "/rooms/SPY");
   expect(screen.getByRole("heading", { name: "SPY" })).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /SPY 토론방 미리보기/ })).toHaveAttribute("href", "/rooms/SPY");
   expect(screen.getByRole("link", { name: /차트가 보이지 않으면/ })).toHaveAttribute("href", expect.stringContaining("AMEX-SPY"));
   expect(screen.getByRole("img", { name: "SPY 외부 제공 차트" })).toBeInTheDocument();
   expect(document.querySelectorAll('script[data-tradingview-widget="true"]')).toHaveLength(1);
+});
+
+test("상세 화면의 발표 메뉴가 홈의 공식 자료로 이동한다", () => {
+  const scrollIntoView = vi.fn();
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: scrollIntoView });
+  try {
+    renderRoute("/assets/SPY");
+    fireEvent.click(within(screen.getByRole("navigation", { name: "주요 메뉴" })).getByRole("link", { name: "발표" }));
+    expect(screen.getByRole("heading", { name: "공식 발표 일정" })).toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+  } finally {
+    Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
+  }
 });
 
 test("종목방은 글쓰기 연결 전 상태를 명확히 표시한다", () => {

@@ -12,10 +12,11 @@ npm run check
 npm test
 npm run build
 npm run verify:dist
+npm run smoke:routes
 npm run dev
 ```
 
-Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. `verify:dist`는 빌드된 HTML이 참조하는 JS·CSS 파일이 실제로 존재하며 비어 있지 않은지 확인한다.
+Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. `verify:dist`는 빌드된 HTML이 참조하는 JS·CSS 파일이 실제로 존재하며 비어 있지 않은지 확인한다. `smoke:routes`는 빌드 미리보기에서 홈·QQQ/SPY 상세·종목방 주소를 직접 요청하고 JS·CSS 응답을 확인한다. 이 검사는 Vercel 배포의 rewrite 상태를 대신하지 않는다.
 
 ## 코드 읽는 순서
 

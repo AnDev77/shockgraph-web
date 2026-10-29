@@ -1,9 +1,14 @@
-import { Link, Outlet, useParams } from "react-router";
+import { useEffect } from "react";
+import { Link, Outlet, useLocation, useParams } from "react-router";
 import { BottomNav } from "../shared/ui/BottomNav";
 import { isAssetSymbol } from "../features/market/assets";
 
 export function AppLayout() {
   const { symbol } = useParams();
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash === "#sources") document.getElementById("sources")?.scrollIntoView();
+  }, [hash]);
   return <div className="app-shell">
     <a className="skip-link" href="#main">본문으로 이동</a>
     <Outlet />
