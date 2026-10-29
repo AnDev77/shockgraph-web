@@ -1,6 +1,6 @@
 # 첫 화면 배포 점검표
 
-목표: 2026-10-31까지 홈·종목 상세·토론방 진입 화면의 공개 배포를 검증한다. 실제 채팅과 예측 결과 제공은 별도 인수 조건이다.
+목표: 2026-10-31까지 홈·종목 상세·토론방 진입 화면의 공개 배포를 검증한다. 이는 첫 화면 공개이며 전체 금융 커뮤니티 완료를 뜻하지 않는다. 실제 채팅은 핵심 목표로 유지한다. 통합 일정과 수정 우선순위는 [중간 평가](reviews/project-midpoint-review-2026-10-29.md)를 따른다.
 
 1. GitHub의 `AnDev77/shockgraph-web` 저장소에서 `npm ci`, `npm run check`, `npm test`, `npm run build`, `npm run verify:dist`, `npm run smoke:routes`의 원격 CI 성공을 확인한다. 초안 PR #1의 이전 `Web quality`는 새 경로 검사 추가 전 단계까지 통과했다. `main`의 첫 실행은 수정 전 파일 검사 때문에 실패했으므로 아직 녹색 상태가 아니다. 로컬 `origin`은 연결했다.
 2. Vercel의 https://shockgraph-web.vercel.app/ 홈 배포는 열렸다. 2026-10-29 실제 `/assets/QQQ` 직접 요청은 404였으며, 이 문제를 고치는 `vercel.json`은 초안 PR에 있다. 해당 변경이 배포된 뒤 `/assets/QQQ`, `/rooms/SPY` 직접 요청과 새로고침이 `index.html`을 제공하는지 **배포 주소에서** 확인한다. 루트와 JS·CSS 자산 요청도 정상이어야 한다. 공식 안내: https://vercel.com/docs/frameworks/frontend/vite
@@ -10,4 +10,4 @@
 
 Vercel 프로젝트와 공개 홈 주소는 생겼으나 상세 URL 직접 접근 실패와 모바일·데스크톱 검증이 남았다. 초안 PR의 통과나 홈 한 화면이 열린다는 사실만으로 첫 배포 목표가 완료된 것은 아니다.
 초안 PR의 Vercel 미리보기는 Ready로 표시되지만 로그인 보호가 있어 공개 브라우저에서 변경된 문구와 rewrite를 아직 확인하지 못했다.
-2026-10-29 로컬 빌드 미리보기에서 홈·상세·종목방 5개 직접 URL 및 JS·CSS 응답을 확인했다. 상세 화면에서 하단 `발표`를 누를 때 홈의 공식 자료가 화면에 나타나지 않는 문제도 발견해 초안 PR에 수정했다. 원격 CI와 실제 Vercel 주소의 재검증은 수정 커밋 이후 별도로 확인한다.
+2026-10-29 커밋 `3569285`의 [Web quality #7](https://github.com/AnDev77/shockgraph-web/actions/runs/40822748097)은 새 경로 검사까지 통과했다. 로컬 빌드 미리보기에서 홈·상세·종목방 5개 직접 URL 및 JS·CSS 응답을 확인했다. 상세 화면의 `발표` 이동도 수정했다. 이 결과는 실제 Vercel 주소의 rewrite·새로고침과 모바일 검증을 대신하지 않는다.
