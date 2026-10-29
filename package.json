@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && vite build",
+    "verify:dist": "node scripts/verify-dist.mjs",
     "check": "tsc --noEmit && eslint .",
     "test": "vitest run"
   },

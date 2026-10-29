@@ -11,10 +11,11 @@ npm ci
 npm run check
 npm test
 npm run build
+npm run verify:dist
 npm run dev
 ```
 
-Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. 실제 배포에서는 직접 URL 접근을 `index.html`로 되돌리는 SPA rewrite 설정이 필요하다.
+Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. `verify:dist`는 빌드된 HTML이 참조하는 JS·CSS 파일이 실제로 존재하며 비어 있지 않은지 확인한다.
 
 ## 코드 읽는 순서
 
@@ -38,4 +39,4 @@ Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets
 
 회원·채팅은 Java 서비스가 신원을 검증한다. 공식 발표 사건과 검증된 연구 상태는 FastAPI의 공개 읽기 API를 통해 받는다. 브라우저에 API 키를 넣거나 가격 원본을 복제하지 않는다. 실제 연결 전에는 출처 시각, 미확인/오류/자료 없음 상태, 접근 제어를 계약 시험으로 확인한다. 상세 조건은 [연구·표시 경계](docs/research-handoff.md)를 따른다.
 
-배포 절차는 [배포 점검표](docs/deployment.md)를 따른다. 아직 공개 배포하지 않았다.
+Vercel의 Vite 프로젝트 설정과 SPA rewrite는 `vercel.json`에 준비했다. 배포 절차는 [배포 점검표](docs/deployment.md)를 따른다. 아직 공개 배포하지 않았다.
