@@ -13,7 +13,8 @@ npm test
 npm run build
 npm run verify:dist
 npm run smoke:routes
-npm run dev
+npm run test:browser # 최초 실행 전 npx playwright install chromium
+npx vite
 ```
 
 Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. `verify:dist`는 빌드된 HTML이 참조하는 JS·CSS 파일이 실제로 존재하며 비어 있지 않은지 확인한다. `smoke:routes`는 빌드 미리보기에서 홈·QQQ/SPY 상세·종목방 주소를 직접 요청하고 JS·CSS 응답을 확인한다. 이 검사는 Vercel 배포의 rewrite 상태를 대신하지 않는다.
@@ -35,6 +36,10 @@ Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets
 - 종목 상세의 시세 차트는 TradingView가 직접 제공한다. 비공개 Alpaca 원본을 브라우저로 보내거나 이 차트를 연구 입력으로 읽지 않는다.
 - 예측 성능은 실제 미래 정답과 시간순 평가가 부족해 `HOLD`다. 미래 방향·위험 수치를 표시하지 않는다.
 - 관심 목록은 현재 개인별 저장 기능이 아니다. 종목방은 화면 흐름만 있으며 채팅·회원 인증·게시물 조회는 아직 연결되지 않았다.
+
+## 회원 화면
+
+`/signup`, `/login`의 이메일 인증 가입·로그인 흐름을 구현했다. 운영 회원 서버가 연결되기 전에는 비활성 상태다. [설정과 검증 경계](docs/auth-connection.md)를 확인한다.
 
 ## 다음 연결
 

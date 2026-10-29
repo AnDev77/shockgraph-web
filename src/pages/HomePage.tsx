@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { AuthNav } from "../features/auth/AuthNav";
 import { Brand } from "../app/AppLayout";
 import { SourceList } from "../features/events/SourceList";
 import { sources } from "../features/events/sources";
@@ -7,7 +8,7 @@ import { ResearchStatusCard } from "../features/research/ResearchStatusCard";
 
 export function HomePage() {
   return <main id="main" className="content home-view">
-    <header className="topbar"><Brand /><span className="top-tag">미국 시장 살펴보기</span></header>
+    <header className="topbar"><Brand /><AuthNav /></header>
     <section className="intro"><p className="eyebrow">경제 발표와 시장</p>
       <h1>미국 경제 발표와<br /><em>QQQ·SPY를 함께 살펴보세요.</em></h1>
       <p>공식 발표 일정과 두 종목의 차트를 한곳에서 확인하세요.</p></section>
