@@ -1,14 +1,20 @@
-import { Link, Outlet, useParams } from "react-router";
+import { useEffect } from "react";
+import { Link, Outlet, useLocation, useParams } from "react-router";
+import { SessionProvider } from "../features/auth/session";
 import { BottomNav } from "../shared/ui/BottomNav";
 import { isAssetSymbol } from "../features/market/assets";
 
 export function AppLayout() {
   const { symbol } = useParams();
-  return <div className="app-shell">
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash === "#sources") document.getElementById("sources")?.scrollIntoView();
+  }, [hash]);
+  return <SessionProvider><div className="app-shell">
     <a className="skip-link" href="#main">본문으로 이동</a>
     <Outlet />
     <BottomNav symbol={isAssetSymbol(symbol) ? symbol : "QQQ"} />
-  </div>;
+  </div></SessionProvider>;
 }
 
 export function Brand({ small = false }: { small?: boolean }) {

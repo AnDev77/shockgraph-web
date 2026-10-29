@@ -1,8 +1,8 @@
 export function ResearchStatusCard() {
   return <aside className="status-card" aria-label="연구 상태">
     <span className="status-dot" aria-hidden="true" />
-    <div><strong>예측 연구 진행 중</strong>
-      <p>미래 결과가 충분히 쌓인 뒤 시간순으로 성능을 검증합니다.</p></div>
-    <span className="status-label">HOLD</span>
+    <div><strong>예측 정보는 검증 후 공개</strong>
+      <p>실제 결과가 더 쌓이면 정확도를 확인한 뒤 제공하겠습니다.</p></div>
+    <span className="status-label">공개 전</span>
   </aside>;
 }

@@ -16,4 +16,7 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
-      - run: test -f dist/index.html && test -f dist/styles.css && test -f dist/src/app.mjs
+      - run: npm run verify:dist
+      - run: npm run smoke:routes
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser

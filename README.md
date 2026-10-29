@@ -11,10 +11,13 @@ npm ci
 npm run check
 npm test
 npm run build
-npm run dev
+npm run verify:dist
+npm run smoke:routes
+npm run test:browser # 최초 실행 전 npx playwright install chromium
+npx vite
 ```
 
-Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. 실제 배포에서는 직접 URL 접근을 `index.html`로 되돌리는 SPA rewrite 설정이 필요하다.
+Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets/QQQ`, 토론방은 `/rooms/SPY`로 접근한다. 알 수 없는 종목은 홈으로 이동한다. `verify:dist`는 빌드된 HTML이 참조하는 JS·CSS 파일이 실제로 존재하며 비어 있지 않은지 확인한다. `smoke:routes`는 빌드 미리보기에서 홈·QQQ/SPY 상세·종목방 주소를 직접 요청하고 JS·CSS 응답을 확인한다. 이 검사는 Vercel 배포의 rewrite 상태를 대신하지 않는다.
 
 ## 코드 읽는 순서
 
@@ -34,8 +37,14 @@ Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets
 - 예측 성능은 실제 미래 정답과 시간순 평가가 부족해 `HOLD`다. 미래 방향·위험 수치를 표시하지 않는다.
 - 관심 목록은 현재 개인별 저장 기능이 아니다. 종목방은 화면 흐름만 있으며 채팅·회원 인증·게시물 조회는 아직 연결되지 않았다.
 
+## 회원 화면
+
+`/signup`, `/login`의 이메일 인증 가입·로그인 흐름을 구현했다. 운영 회원 서버가 연결되기 전에는 비활성 상태다. [설정과 검증 경계](docs/auth-connection.md)를 확인한다.
+
 ## 다음 연결
+
+현재 방향·진도·수정 우선순위는 [2026-10-29 중간 평가](docs/reviews/project-midpoint-review-2026-10-29.md)에 정리했다. 첫 화면 공개와 실제 채팅이 연결된 서비스 완료를 구분한다.
 
 회원·채팅은 Java 서비스가 신원을 검증한다. 공식 발표 사건과 검증된 연구 상태는 FastAPI의 공개 읽기 API를 통해 받는다. 브라우저에 API 키를 넣거나 가격 원본을 복제하지 않는다. 실제 연결 전에는 출처 시각, 미확인/오류/자료 없음 상태, 접근 제어를 계약 시험으로 확인한다. 상세 조건은 [연구·표시 경계](docs/research-handoff.md)를 따른다.
 
-배포 절차는 [배포 점검표](docs/deployment.md)를 따른다. 아직 공개 배포하지 않았다.
+현재 [공개 홈](https://shockgraph-web.vercel.app/)은 열리지만, 2026-10-29 확인 당시 상세 주소 직접 접근은 404였다. SPA rewrite와 문구 수정은 초안 PR에 있으므로 공개 화면에 반영되기 전이다. 배포 절차와 남은 검증은 [배포 점검표](docs/deployment.md)를 따른다.
