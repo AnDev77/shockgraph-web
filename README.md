@@ -39,4 +39,4 @@ Vite가 표시하는 로컬 주소에서 확인한다. 종목 상세는 `/assets
 
 회원·채팅은 Java 서비스가 신원을 검증한다. 공식 발표 사건과 검증된 연구 상태는 FastAPI의 공개 읽기 API를 통해 받는다. 브라우저에 API 키를 넣거나 가격 원본을 복제하지 않는다. 실제 연결 전에는 출처 시각, 미확인/오류/자료 없음 상태, 접근 제어를 계약 시험으로 확인한다. 상세 조건은 [연구·표시 경계](docs/research-handoff.md)를 따른다.
 
-Vercel의 Vite 프로젝트 설정과 SPA rewrite는 `vercel.json`에 준비했다. 배포 절차는 [배포 점검표](docs/deployment.md)를 따른다. 아직 공개 배포하지 않았다.
+현재 [공개 홈](https://shockgraph-web.vercel.app/)은 열리지만, 2026-10-29 확인 당시 상세 주소 직접 접근은 404였다. SPA rewrite와 문구 수정은 초안 PR에 있으므로 공개 화면에 반영되기 전이다. 배포 절차와 남은 검증은 [배포 점검표](docs/deployment.md)를 따른다.
