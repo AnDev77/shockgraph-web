@@ -14,4 +14,6 @@
 
 `npm ci`의 새 설치가 성공했다. 수정 후 TypeScript와 ESLint 오류 0건, Vitest 화면 시험 4개 통과, Vite 빌드 성공, HTML의 JS·CSS 참조 2개 존재·비어 있지 않음을 확인했다. 로컬 Vite 미리보기에서 `/`, `/assets/QQQ`, `/rooms/SPY`가 HTTP 200 HTML을, 빌드 JS 요청이 HTTP 200 JavaScript를 반환했다. `git diff --check`도 통과했다.
 
-GitHub의 빈 `AnDev77/shockgraph-web`을 확인한 뒤 로컬 `origin`을 연결했다. 로컬 Git에는 GitHub 인증 정보가 없어 일반 `git push`는 실패했다. GitHub 연결 기능으로 React 기반 파일을 `main`에 기록하고 이 수정의 별도 브랜치를 만들었다. GitHub Actions 실행과 Vercel 프로젝트 연결은 아직 확인하지 않았다. 따라서 원격 CI, 실제 배포 주소에서의 새로고침, 외부 TradingView 위젯 로딩, 모바일·데스크톱 시각 검증은 미완료다. 이 변경은 첫 화면을 배포할 준비 작업이며 회원·채팅 서버 연결, 실제 예측 성능, 사용자 수요를 증명하지 않는다. 연구 상태는 `HOLD`다.
+GitHub의 빈 `AnDev77/shockgraph-web`을 확인한 뒤 로컬 `origin`을 연결했다. 로컬 Git에는 GitHub 인증 정보가 없어 일반 `git push`는 실패했다. GitHub 연결 기능으로 React 기반 파일을 `main`에 기록하고 이 수정의 초안 PR #1을 열었다. 해당 PR의 `Web quality` 작업에서 설치·TypeScript/ESLint·화면 시험·빌드·산출물 검사 단계가 모두 성공했다.
+
+Vercel 프로젝트는 아직 연결하지 않았다. 따라서 실제 배포 주소에서의 새로고침, 외부 TradingView 위젯 로딩, 모바일·데스크톱 시각 검증은 미완료다. 이 변경은 첫 화면을 배포할 준비 작업이며 회원·채팅 서버 연결, 실제 예측 성능, 사용자 수요를 증명하지 않는다. 연구 상태는 `HOLD`다. 초안 PR은 병합하지 않았다.
