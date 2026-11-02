@@ -6,6 +6,8 @@
 
 - `VITE_AUTH_ENABLED=true`
 - `VITE_AUTH_API_BASE_URL=https://<승인된-Java-호스트>/api/v1/auth` 또는 동일 출처 프록시가 있으면 `/api/v1/auth`
+- `VITE_CHAT_ENABLED=true` — QQQ·SPY 종목방의 공개 읽기와 로그인 쓰기를 켠다. 서버 연결 전에는 `false`로 둔다.
+- `VITE_CHAT_API_BASE_URL=https://<승인된-Java-호스트>/api/v1/finance/rooms` — 회원 API와 같은 HTTPS 호스트를 사용한다.
 
 `VITE_` 값은 브라우저에 공개되는 설정이다. SMTP 비밀번호나 JWT 서명키를 넣지 않는다. 운영에는 HTTPS를 사용한다. 기본 Vercel SPA rewrite만으로 Java API가 생기지 않으므로 프록시 또는 실제 Java URL이 필요하다. HTML 200을 API 성공으로 취급하지 않는다.
 
@@ -14,6 +16,8 @@ Java에는 `APP_AUTH_ALLOWED_ORIGINS=https://shockgraph-web.vercel.app`처럼 �
 ## 사용자 흐름
 
 이메일 발송 → 코드 확인 → 10분 가입 증표 발급 → 증표를 포함한 가입 → 로그인 순서다. 이메일을 바꾸거나 인증 시간이 지나면 가입 증표를 폐기한다. 재발송·서버 제한 시간에는 대기 안내를 제공한다. 가입 실패 때 증표가 이미 소진됐을 수 있으므로 로그인 또는 재인증을 안내한다. 로그인 토큰은 메모리 세션에만 보관하고 새로고침·로그아웃·만료 시 다시 로그인한다. 로그인 성공이 관심 종목 저장이나 채팅 연결 완료를 뜻하지 않는다.
+
+금융방 첫 화면은 공개 최근 30개를 읽고 5초마다 `afterId`로 새 메시지를 확인한다. 화면에 글을 쓸 때 UUID 요청 ID를 전송하며, 응답을 못 받은 같은 글의 재시도는 같은 ID를 써 중복 저장을 막는다. 실시간 STOMP 방송은 서버에 있지만 이 첫 웹 화면은 폴링으로 누락을 복구한다. 서버와 다른 Origin에서 접속하므로 Java의 금융 REST CORS와 `/ws` Origin은 정확한 웹 주소로 설정한다. HTML fallback을 메시지 성공으로 취급하지 않는다.
 
 ## 검증 종류와 남은 조건
 
