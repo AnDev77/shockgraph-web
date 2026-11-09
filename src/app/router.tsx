@@ -5,6 +5,7 @@ import { AssetPage } from "../pages/AssetPage";
 import { SignupPage } from "../pages/SignupPage";
 import { LoginPage } from "../pages/LoginPage";
 import { RoomPage } from "../pages/RoomPage";
+import { EvidencePage } from "../pages/EvidencePage";
 
 export const router = createBrowserRouter([{
   element: <AppLayout />,
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([{
     { path: "/login", element: <LoginPage /> },
     { path: "/", element: <HomePage /> },
     { path: "/assets/:symbol", element: <AssetPage /> },
+    { path: "/assets/:symbol/evidence", element: <EvidencePage /> },
     { path: "/rooms/:symbol", element: <RoomPage /> },
     { path: "*", element: <HomePage /> },
   ],

@@ -108,6 +108,7 @@ function ValidRoomPage({ symbol }: { symbol: AssetSymbol }) {
     </div><div className="secondary-column">
       <aside className="pinned-source"><span>함께 볼 자료</span><strong>FOMC 공식 일정과 성명</strong>
         <a href={sources[0].url} target="_blank" rel="noopener noreferrer">연준 원문 확인 ↗</a></aside>
+      <Link className="secondary-action" to={`/assets/${symbol}/evidence`}>{symbol} 발표 근거 보기 →</Link>
       <Link className="secondary-action" to={`/assets/${symbol}`}>{assets[symbol].symbol} 시장 흐름 보기 →</Link>
     </div></div>
   </main>;
