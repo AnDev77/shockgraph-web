@@ -27,6 +27,7 @@ export function AssetPage() {
           <a href={asset.chartUrl} target="_blank" rel="noopener noreferrer">차트가 보이지 않으면 TradingView에서 보기 ↗</a></p>
       </section>
       <ResearchStatusCard />
+      <Link className="secondary-action" to={`/assets/${symbol}/evidence`}>{symbol} 발표 근거 보기 →</Link>
     </div><div className="secondary-column"><SourceList />
       <Link className="primary-action" to={`/rooms/${symbol}`}>{symbol} 토론방 미리보기 →</Link>
     </div></div>
