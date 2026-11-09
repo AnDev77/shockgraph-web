@@ -13,7 +13,9 @@
 
 중간 시험에서 문장 일부를 정확 일치로 찾던 단위 시험 1건이 실패했다. 실제 문단의 일부임을 확인하고 부분 일치 검사로 고친 후 `npm run check`와 `npm test`의 19개 시험이 통과했다. `npm run build`, `npm run verify:dist`, `npm run smoke:routes`는 빌드 HTML·자산 2개와 직접 URL 9개를 확인했다.
 
-`npm run test:browser`는 로컬 Playwright 전용 Chromium 실행 파일이 없어 6건 모두 시작하지 못했다. 설치된 `/usr/bin/chromium`으로 재시도했으나 이 환경이 Chromium의 소켓 생성을 `Operation not permitted`로 막아 역시 시험 본문에 진입하지 못했다. 이는 화면 검증 성공이 아니므로 원격 PR의 데스크톱·모바일 브라우저 게이트를 별도 확인해야 한다.
+`npm run test:browser`는 로컬 Playwright 전용 Chromium 실행 파일이 없어 6건 모두 시작하지 못했다. 설치된 `/usr/bin/chromium`으로 재시도했으나 이 환경이 Chromium의 소켓 생성을 `Operation not permitted`로 막아 역시 시험 본문에 진입하지 못했다. 이 실패는 로컬 화면 검증 성공으로 세지 않고 원격 PR의 데스크톱·모바일 브라우저 게이트를 별도 확인했다.
+
+[초안 PR #3의 Web quality 실행](https://github.com/AnDev77/shockgraph-web/actions/runs/42572243442)에서 `npm ci`, 타입·린트, 단위 시험, 빌드, 자산 검사, 직접 URL 검사, Playwright 설치와 데스크톱·모바일 브라우저 시험 단계가 모두 성공했다. 이 게이트는 합성 환경의 화면 동작을 확인하며 실제 배포 도메인과 외부 기관 연결을 확인한 것은 아니다.
 
 ## 객관적 판정과 다음 조건
 
