@@ -67,7 +67,8 @@ function ValidRoomPage({ symbol }: { symbol: AssetSymbol }) {
       const saved = await chatApi.post(symbol, trimmed, request.id, session.accessToken);
       setMessages((previous) => [...previous.filter((row) => row.id !== saved.id), saved]
         .sort((a, b) => a.id - b.id).slice(-100));
-      lastId.current = Math.max(lastId.current ?? 0, saved.id);
+      // A write response says nothing about intervening messages from other users.
+      // Only a completed list response may advance the read cursor.
       setContent("");
       pending.current = null;
     } catch (reason) {

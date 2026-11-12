@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { SessionProvider, useSession } from "../auth/session";
 import { chatApi } from "./api";
@@ -30,7 +30,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockReset();
 });
-afterEach(() => { cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 test("익명 사용자는 메시지를 읽지만 글쓰기 대신 로그인을 안내한다", async () => {
   fetchMock.mockResolvedValue(ok([first]));
@@ -60,4 +60,36 @@ test("HTML 성공 응답과 다른 종목 메시지는 API 성공으로 받지 �
   await expect(chatApi.list("QQQ")).rejects.toThrow("응답을 확인");
   fetchMock.mockResolvedValueOnce(ok([{ ...first, symbol: "SPY" }]));
   await expect(chatApi.list("QQQ")).rejects.toThrow("일치하지");
+});
+
+test("내 글을 저장해도 아직 읽지 않은 상대 글을 다음 조회에서 건너뛰지 않는다", async () => {
+  let refresh: (() => void) | undefined;
+  const originalInterval = window.setInterval.bind(window);
+  vi.spyOn(window, "setInterval").mockImplementation((handler, timeout, ...args) => {
+    if (timeout === 5000 && typeof handler === "function") {
+      refresh = () => handler();
+      return 123;
+    }
+    return originalInterval(handler, timeout, ...args);
+  });
+  const own = { ...first, id: 3, content: "내 답변" };
+  fetchMock.mockImplementation(async (url, init) => {
+    if (init?.method === "POST") return ok(own);
+    if (String(url).endsWith("?afterId=1")) return ok([second, own]);
+    if (String(url).includes("afterId=")) return ok([]);
+    return ok([first]);
+  });
+  page(true);
+  await screen.findByText("첫 의견");
+  fireEvent.click(screen.getByRole("button", { name: "시험 로그인" }));
+  fireEvent.change(screen.getByLabelText("의견 쓰기"), { target: { value: "내 답변" } });
+  fireEvent.click(screen.getByRole("button", { name: "게시하기" }));
+  await screen.findByText("내 답변");
+  expect(refresh).toBeTypeOf("function");
+  await act(async () => { refresh?.(); });
+  expect(await screen.findByText("새 의견")).toBeInTheDocument();
+  expect(screen.getAllByText("내 답변")).toHaveLength(1);
+  expect(fetchMock.mock.calls.at(-1)?.[0]).toContain("?afterId=1");
+  await act(async () => { refresh?.(); });
+  await waitFor(() => expect(fetchMock.mock.calls.at(-1)?.[0]).toContain("?afterId=3"));
 });
