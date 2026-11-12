@@ -64,3 +64,10 @@
 최신 사용자 결정→이 계획→AGENTS와 해당 기능 리뷰 순으로 확인한다. 세 저장소 원격 상태와 로컬 작업 트리를 확인하고 중복 쓰기를 피한다. 시작·중간·완료 근거와 작업량/오류/한계를 안전한 기능 리뷰에 기록한다. 과거 비공개 성과가 포함된 Python progress/troubleshooting/scorecard 전체 업로드는 하지 않는다. 코드가 바뀐 저장소에서 전체 시험과 빌드 및 최종 원격 게이트를 확인한다. 소프트웨어 통과, 실제 운영, 미래 예측 성능, 제품 수요는 별도 판정한다.
 
 오늘 구현 상세: [채팅 조회 기준 누락 수정](reviews/chat-read-cursor-review.md), [EC2 사전 점검 PR](https://github.com/AnDev77/doChallenge/pull/15).
+
+## 11월 12일 중간 진행
+
+- Java [관심 종목 초안 #16](https://github.com/AnDev77/doChallenge/pull/16)에 회원별 QQQ/SPY 조회·추가·제거와 추가 V2 스키마를 제안했다. 격리 시험은 V1/V2 두 앱의 공유 DB·Redis 및 기존 회원/대화 보존을 확인한다. 운영 DB 결과는 별도다.
+- 웹 [채팅 읽기 기준 수정 #4](https://github.com/AnDev77/shockgraph-web/pull/4)와 그 위의 관심 목록 화면 초안을 구분한다. 관심 목록은 Java/HTTPS/실메일 연동 전 기능 플래그를 켜지 않는다.
+- 사용자가 확인한 EC2 `~/doChallenge`는 `0b9e926`이고 Docker 컨테이너·볼륨 출력은 비어 있다. Docker/Compose·IAM 역할 연결·SSM 에이전트는 사전 점검에 표시됐으나 서버 `.env`와 API TLS/SMTP, 승인 main이 아직 없다. 첫 설치 전 기존 호스트 DB와 권한은 별도 확인한다.
+- 최신 PR들의 CI가 모두 성공하고 안전한 운영 이미지/서버 설정을 확인하기 전에는 공개 회원·채팅 배포 완료로 적지 않는다. 연구 성능과 상품 수요도 HOLD다.
