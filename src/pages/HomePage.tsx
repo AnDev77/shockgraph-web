@@ -5,6 +5,7 @@ import { SourceList } from "../features/events/SourceList";
 import { sources } from "../features/events/sources";
 import { assets } from "../features/market/assets";
 import { ResearchStatusCard } from "../features/research/ResearchStatusCard";
+import { WatchlistPanel } from "../features/watchlist/Watchlist";
 
 export function HomePage() {
   return <main id="main" className="content home-view">
@@ -29,6 +30,7 @@ export function HomePage() {
               <small>차트와 공식 발표 자료 보기</small></span><span className="chevron" aria-hidden="true">→</span>
           </Link>)}</div>
       </section>
+      <WatchlistPanel />
       <ResearchStatusCard />
     </div><div className="secondary-column"><SourceList /></div></div>
     <p className="footer-note">차트는 TradingView에서 제공합니다. 자체 분석 결과는 검증을 마친 뒤 공개합니다.</p>

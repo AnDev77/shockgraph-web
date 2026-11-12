@@ -3,6 +3,7 @@ import { Brand } from "../app/AppLayout";
 import { SourceList } from "../features/events/SourceList";
 import { assets, isAssetSymbol } from "../features/market/assets";
 import { TradingViewChart } from "../features/market/TradingViewChart";
+import { WatchlistToggle } from "../features/watchlist/Watchlist";
 import { ResearchStatusCard } from "../features/research/ResearchStatusCard";
 
 export function AssetPage() {
@@ -28,6 +29,7 @@ export function AssetPage() {
       </section>
       <ResearchStatusCard />
     </div><div className="secondary-column"><SourceList />
+      <WatchlistToggle symbol={symbol} />
       <Link className="primary-action" to={`/rooms/${symbol}`}>{symbol} 토론방 미리보기 →</Link>
     </div></div>
   </main>;
