@@ -1,19 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async ({ page }) => {
-  const calls: string[] = [];
+  const calls: Array<{ path: string; request: Record<string, string> }> = [];
   await page.route("**/api/v1/auth/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     const request = route.request().postDataJSON() as Record<string, string>;
-    calls.push(path);
+    calls.push({ path, request });
     let data: unknown = null;
     if (path.endsWith("/confirm")) {
-      expect(request.code).toBe("123456");
       data = { verificationToken: "a".repeat(43), expiresInSeconds: 600 };
     }
     if (path.endsWith("/signup")) {
-      expect(request.verificationToken).toBe("a".repeat(43));
-      expect(request.email).toBe("person@example.invalid");
       data = { memberId: 1 };
     }
     if (path.endsWith("/login")) data = { tokenType: "Bearer", accessToken: "synthetic-browser-token", expiresInSeconds: 3600 };
@@ -37,6 +34,7 @@ test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async 
   await expect(page).toHaveURL(/\/signup\?room=SPY$/);
   await page.getByLabel("이메일", { exact: true }).fill("person@example.invalid");
   await page.getByRole("button", { name: "인증번호 받기" }).click();
+  await expect(page.locator(".auth-message")).toContainText("메일을 확인해 주세요.");
   await page.getByLabel("인증번호 6자리").fill("123456");
   await page.getByRole("button", { name: "인증번호 확인" }).click();
   await page.getByLabel("닉네임").fill("tester");
@@ -49,7 +47,14 @@ test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async 
   await page.getByLabel("비밀번호", { exact: true }).fill("password123");
   await page.getByRole("button", { name: "로그인하기" }).click();
   await expect(page.getByText("로그인했습니다.")).toBeVisible();
-  expect(calls).toHaveLength(4);
+  expect(calls).toEqual([
+    { path: "/api/v1/auth/email-verifications/send", request: { email: "person@example.invalid" } },
+    { path: "/api/v1/auth/email-verifications/confirm", request: { email: "person@example.invalid", code: "123456" } },
+    { path: "/api/v1/auth/signup", request: expect.objectContaining({
+      email: "person@example.invalid", verificationToken: "a".repeat(43),
+    }) },
+    { path: "/api/v1/auth/login", request: expect.objectContaining({ email: "person@example.invalid" }) },
+  ]);
   expect(await page.evaluate(() => localStorage.length + sessionStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByRole("link", { name: "SPY 토론방으로 돌아가기" }).click();
