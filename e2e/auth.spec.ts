@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
   const calls: Array<{ path: string; request: Record<string, string> }> = [];
   await page.route("**/api/v1/auth/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -32,8 +34,15 @@ test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async 
   await page.getByRole("main").getByRole("link", { name: "로그인", exact: true }).click();
   await page.getByRole("main").getByRole("link", { name: "회원가입", exact: true }).click();
   await expect(page).toHaveURL(/\/signup\?room=SPY$/);
-  await page.getByLabel("이메일", { exact: true }).fill("person@example.invalid");
+  const email = page.getByLabel("이메일", { exact: true });
+  await email.fill("person@example.invalid");
+  await expect(email).toHaveValue("person@example.invalid");
+  await expect(email).toHaveJSProperty("validationMessage", "");
   await page.getByRole("button", { name: "인증번호 받기" }).click();
+  await expect.poll(() => ({
+    called: calls.some(({ path }) => path.endsWith("/email-verifications/send")),
+    pageErrors,
+  })).toEqual({ called: true, pageErrors: [] });
   await expect(page.locator(".auth-message")).toContainText("메일을 확인해 주세요.");
   await page.getByLabel("인증번호 6자리").fill("123456");
   await page.getByRole("button", { name: "인증번호 확인" }).click();
