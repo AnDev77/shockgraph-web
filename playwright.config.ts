@@ -15,6 +15,6 @@ export default defineConfig({
     command: "npm run e2e:serve",
     url: "http://127.0.0.1:4174",
     reuseExistingServer: false,
-    env: { VITE_AUTH_ENABLED: "true" },
+    env: { VITE_AUTH_ENABLED: "true", VITE_CHAT_ENABLED: "true" },
   },
 });

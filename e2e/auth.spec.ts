@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("이메일 인증 가입과 로그인은 모바일·데스크톱에서 진행된다", async ({ page }) => {
+test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async ({ page }) => {
   const calls: string[] = [];
   await page.route("**/api/v1/auth/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -19,7 +19,22 @@ test("이메일 인증 가입과 로그인은 모바일·데스크톱에서 진�
     if (path.endsWith("/login")) data = { tokenType: "Bearer", accessToken: "synthetic-browser-token", expiresInSeconds: 3600 };
     await route.fulfill({ json: { success: true, data, error: null } });
   });
-  await page.goto("/signup");
+  let saved = false;
+  const row = { id: 1, authorId: 3, symbol: "SPY", content: "브라우저에서 보낸 의견", createdAt: "2026-11-13T04:00:00Z" };
+  await page.route("**/api/v1/finance/rooms/**", async (route) => {
+    expect(new URL(route.request().url()).pathname).toBe("/api/v1/finance/rooms/SPY/messages");
+    if (route.request().method() === "POST") {
+      expect(route.request().headers().authorization).toBe("Bearer synthetic-browser-token");
+      expect(route.request().postDataJSON()).toMatchObject({ content: row.content, requestId: expect.any(String) });
+      saved = true;
+      return route.fulfill({ json: { success: true, data: row } });
+    }
+    return route.fulfill({ json: { success: true, data: saved ? [row] : [] } });
+  });
+  await page.goto("/rooms/SPY");
+  await page.getByRole("main").getByRole("link", { name: "로그인", exact: true }).click();
+  await page.getByRole("main").getByRole("link", { name: "회원가입", exact: true }).click();
+  await expect(page).toHaveURL(/\/signup\?room=SPY$/);
   await page.getByLabel("이메일", { exact: true }).fill("person@example.invalid");
   await page.getByRole("button", { name: "인증번호 받기" }).click();
   await page.getByLabel("인증번호 6자리").fill("123456");
@@ -37,8 +52,15 @@ test("이메일 인증 가입과 로그인은 모바일·데스크톱에서 진�
   expect(calls).toHaveLength(4);
   expect(await page.evaluate(() => localStorage.length + sessionStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole("link", { name: "SPY 토론방으로 돌아가기" }).click();
+  await expect(page).toHaveURL(/\/rooms\/SPY$/);
+  await page.getByLabel("의견 쓰기").fill(row.content);
+  await page.getByRole("button", { name: "게시하기" }).click();
+  await expect(page.getByRole("log")).toContainText(row.content);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.reload();
-  await expect(page.getByLabel("비밀번호", { exact: true })).toBeVisible();
+  await expect(page.getByRole("log")).toContainText(row.content);
+  await expect(page.getByLabel("의견 쓰기")).toHaveCount(0);
 });
 
 test("직접 진입 후 연결 오류가 나면 완료로 표시하지 않는다", async ({ page }) => {

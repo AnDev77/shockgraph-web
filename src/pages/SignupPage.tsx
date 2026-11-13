@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { Brand } from "../app/AppLayout";
+import { authPath, roomFromSearch } from "../features/auth/room-entry";
 import { AuthField } from "../features/auth/AuthField";
 import { AuthError, authApi, authEnabled } from "../features/auth/api";
 
@@ -9,6 +10,8 @@ type Stage = { step: "email" } | { step: "code"; email: string }
   | { step: "details"; email: string; proof: string; expiresAt: number } | { step: "done" };
 
 export function SignupPage() {
+  const [search] = useSearchParams();
+  const loginPath = authPath("login", roomFromSearch(search));
   const [stage, setStage] = useState<Stage>({ step: "email" });
   const [message, setMessage] = useState("");
   const [waitUntil, setWaitUntil] = useState(0);
@@ -50,10 +53,10 @@ export function SignupPage() {
       signup.mutate({ email: stage.email, proof: stage.proof, nickname: String(data.get("nickname")).trim(), password });
     }
   };
-  return <main id="main" className="content auth-view"><header className="topbar"><Brand small /><Link to="/login">로그인</Link></header>
+  return <main id="main" className="content auth-view"><header className="topbar"><Brand small /><Link to={loginPath}>로그인</Link></header>
     <section className="auth-panel"><p className="eyebrow">ShockGraph 계정</p><h1>회원가입</h1>
       {!authEnabled() ? <p role="status">회원 기능을 연결하고 있습니다. 준비가 끝나면 이메일 인증으로 가입할 수 있어요.</p>
-      : stage.step === "done" ? <div role="status"><h2>가입이 완료됐어요</h2><p>이메일과 비밀번호로 로그인해 주세요.</p><Link className="primary-action" to="/login">로그인하기 →</Link></div>
+      : stage.step === "done" ? <div role="status"><h2>가입이 완료됐어요</h2><p>이메일과 비밀번호로 로그인해 주세요.</p><Link className="primary-action" to={loginPath}>로그인하기 →</Link></div>
       : <><p>이메일을 확인한 뒤 계정을 만들 수 있어요.</p>
         <ol className="auth-steps" aria-label="가입 단계"><li aria-current={stage.step === "email" ? "step" : undefined}>이메일</li><li aria-current={stage.step === "code" ? "step" : undefined}>인증번호</li><li aria-current={stage.step === "details" ? "step" : undefined}>가입 정보</li></ol>
         <form onSubmit={submit} key={stage.step}><fieldset disabled={busy}>

@@ -36,7 +36,7 @@ test("익명 사용자는 메시지를 읽지만 글쓰기 대신 로그인을 �
   fetchMock.mockResolvedValue(ok([first]));
   page();
   expect(await screen.findByText("첫 의견")).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "로그인" })).toHaveAttribute("href", "/login");
+  expect(screen.getByRole("link", { name: "로그인" })).toHaveAttribute("href", "/login?room=QQQ");
   expect(screen.queryByRole("button", { name: "게시하기" })).not.toBeInTheDocument();
   expect(fetchMock.mock.calls[0]?.[0]).toBe("https://api.example.invalid/api/v1/finance/rooms/QQQ/messages");
 });
@@ -92,4 +92,47 @@ test("내 글을 저장해도 아직 읽지 않은 상대 글을 다음 조회�
   expect(fetchMock.mock.calls.at(-1)?.[0]).toContain("?afterId=1");
   await act(async () => { refresh?.(); });
   await waitFor(() => expect(fetchMock.mock.calls.at(-1)?.[0]).toContain("?afterId=3"));
+});
+
+test("목록 연결 오류는 수동 재시도로 복구하고 유효한 글만 표시한다", async () => {
+  fetchMock.mockRejectedValueOnce(new TypeError("offline"));
+  fetchMock.mockResolvedValueOnce(ok([first]));
+  page();
+  await screen.findByText(/토론방에 연결할 수 없습니다/);
+  fireEvent.click(screen.getByRole("button", { name: "목록 다시 불러오기" }));
+  expect(await screen.findByText("첫 의견")).toBeInTheDocument();
+  expect(screen.queryByText(/토론방에 연결할 수 없습니다/)).not.toBeInTheDocument();
+});
+
+test("글쓰기 실패 안내는 목록 조회가 성공해도 유지하고 다시 보낼 때 같은 ID를 쓴다", async () => {
+  let refresh: (() => void) | undefined;
+  vi.spyOn(window, "setInterval").mockImplementation((handler) => {
+    if (typeof handler === "function") refresh = () => handler();
+    return 123;
+  });
+  fetchMock.mockResolvedValueOnce(ok([first]));
+  fetchMock.mockResolvedValueOnce(new Response("<html>rate limit</html>", { status: 429 }));
+  fetchMock.mockResolvedValueOnce(ok([]));
+  fetchMock.mockResolvedValueOnce(ok(second));
+
+  page(true);
+  await screen.findByText("첫 의견");
+  fireEvent.click(screen.getByRole("button", { name: "시험 로그인" }));
+  fireEvent.change(screen.getByLabelText("의견 쓰기"), { target: { value: "새 의견" } });
+  fireEvent.click(screen.getByRole("button", { name: "게시하기" }));
+  const error = await screen.findByText(/요청이 많습니다/);
+  await act(async () => { refresh?.(); });
+  expect(error).toBeInTheDocument();
+  expect(screen.getByLabelText("의견 쓰기")).toHaveValue("새 의견");
+  fireEvent.click(screen.getByRole("button", { name: "게시하기" }));
+  expect(await screen.findByText("새 의견")).toBeInTheDocument();
+  const requests = fetchMock.mock.calls.filter(([, init]) => init?.method === "POST");
+  expect(requests).toHaveLength(2);
+  expect(requests[0]?.[1]?.body).toBe(requests[1]?.[1]?.body);
+  expect(error).not.toBeInTheDocument();
+});
+
+test("잘못된 응답 필드의 내부 스키마 오류는 사용자에게 노출하지 않는다", async () => {
+  fetchMock.mockResolvedValueOnce(ok([{ ...first, createdAt: "unknown" }]));
+  await expect(chatApi.list("QQQ")).rejects.toThrow("토론방 응답을 확인할 수 없습니다.");
 });
