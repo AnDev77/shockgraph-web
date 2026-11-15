@@ -1,9 +1,9 @@
 import { z } from "zod";
-import type { AssetSymbol } from "../market/assets";
+import { roomSymbols, type RoomSymbol } from "../market/assets";
 
 const message = z.object({
   id: z.number().int().positive(),
-  symbol: z.enum(["QQQ", "SPY"]),
+  symbol: z.enum(roomSymbols),
   authorId: z.number().int().positive(),
   content: z.string().max(1000),
   createdAt: z.string().datetime({ offset: true }),
@@ -47,13 +47,13 @@ async function request(path: string, init?: RequestInit): Promise<unknown> {
 }
 
 export const chatApi = {
-  list: async (symbol: AssetSymbol, afterId?: number): Promise<RoomMessage[]> => {
+  list: async (symbol: RoomSymbol, afterId?: number): Promise<RoomMessage[]> => {
     const path = `/${symbol}/messages${afterId === undefined ? "" : `?afterId=${afterId}`}`;
     const rows = z.array(message).max(30).parse(await request(path));
     if (rows.some((row) => row.symbol !== symbol)) throw new ChatError("토론방 응답이 일치하지 않습니다.");
     return rows;
   },
-  post: async (symbol: AssetSymbol, content: string, requestId: string, token: string): Promise<RoomMessage> => {
+  post: async (symbol: RoomSymbol, content: string, requestId: string, token: string): Promise<RoomMessage> => {
     const row = message.parse(await request(`/${symbol}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

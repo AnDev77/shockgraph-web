@@ -20,8 +20,22 @@ test("홈의 종목과 공식 원문, 연구 보류를 구분한다", () => {
   renderRoute("/");
   expect(screen.getByRole("link", { name: /나스닥 100 ETF/ })).toHaveAttribute("href", "/assets/QQQ");
   expect(screen.getByRole("link", { name: /S&P 500 ETF/ })).toHaveAttribute("href", "/assets/SPY");
+  expect(screen.getByRole("link", { name: /스페이스X/ })).toHaveAttribute("href", "/assets/SPCX");
+  expect(screen.getByRole("link", { name: /캠텍/ })).toHaveAttribute("href", "/assets/CAMT");
   expect(screen.getByRole("link", { name: /연준에서 일정 보기/ })).toHaveAttribute("href", expect.stringContaining("federalreserve.gov"));
   expect(screen.getByText("공개 전")).toBeInTheDocument();
+});
+
+test.each([
+  ["SPCX", "https://ir.spacex.com/"],
+  ["CAMT", "https://www.camtek.com/investors/"],
+])("%s 종목방 직접 접근은 공식 IR과 차트가 있는 상세로 안내한다", (symbol, investorUrl) => {
+  renderRoute(`/rooms/${symbol}`);
+  expect(screen.getByRole("heading", { name: symbol })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /공식 IR 열기/ })).toHaveAttribute("href", investorUrl);
+  expect(screen.getByRole("img", { name: `${symbol} 외부 제공 차트` }).firstElementChild)
+    .toHaveAttribute("symbol", `NASDAQ:${symbol}`);
+  expect(screen.queryByRole("link", { name: /토론/ })).not.toBeInTheDocument();
 });
 
 test("SPY 상세의 차트 출처와 토론 링크가 종목을 유지한다", () => {

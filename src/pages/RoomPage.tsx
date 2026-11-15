@@ -4,15 +4,17 @@ import { Brand } from "../app/AppLayout";
 import { useSession } from "../features/auth/session";
 import { chatApi, chatEnabled, type RoomMessage } from "../features/chat/api";
 import { sources } from "../features/events/sources";
-import { assets, isAssetSymbol, type AssetSymbol } from "../features/market/assets";
+import { assets, isAssetSymbol, isRoomSymbol, type RoomSymbol } from "../features/market/assets";
 
 export function RoomPage() {
   const { symbol } = useParams();
-  if (!isAssetSymbol(symbol)) return <Navigate to="/" replace />;
+  if (!isRoomSymbol(symbol)) {
+    return <Navigate to={isAssetSymbol(symbol) ? `/assets/${symbol}` : "/"} replace />;
+  }
   return <ValidRoomPage key={symbol} symbol={symbol} />;
 }
 
-function ValidRoomPage({ symbol }: { symbol: AssetSymbol }) {
+function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
   const { session } = useSession();
   const enabled = chatEnabled();
   const [messages, setMessages] = useState<RoomMessage[]>([]);
