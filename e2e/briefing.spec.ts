@@ -3,14 +3,13 @@ import { expect, test } from "@playwright/test";
 test("종목 전환과 다시 확인 후 검증된 출처만 표시한다", async ({ page }, testInfo) => {
   if (testInfo.project.name === "mobile") await page.setViewportSize({ width: 360, height: 800 });
   await page.route("https://widgets.tradingview-widget.com/**", (route) => route.abort());
-  let requested = 0;
+  let briefingReady = false;
   await page.route("**/api/v1/briefings/**", async (route) => {
     const { pathname, search } = new URL(route.request().url());
     expect(search).toBe("?window=7d");
     const symbol = pathname.split("/").at(-1);
     if (symbol !== "CAMT") return route.fulfill({ json: { symbol, status: "insufficient_sources" } });
-    requested++;
-    if (requested === 1) return route.fulfill({ json: { symbol, status: "pending" } });
+    if (!briefingReady) return route.fulfill({ json: { symbol, status: "pending" } });
     return route.fulfill({ json: {
       symbol, status: "ready", stance: "withheld", freshness: "stale",
       generated_at: "2026-11-15T10:00:00Z",
@@ -23,6 +22,7 @@ test("종목 전환과 다시 확인 후 검증된 출처만 표시한다", asyn
   await expect(page.getByRole("status")).toContainText("확인된 자료가 부족해요");
   await page.getByRole("link", { name: /CAMT 캠텍/ }).click();
   await expect(page.getByRole("status")).toContainText("브리핑을 준비하고 있어요");
+  briefingReady = true;
   await page.getByRole("button", { name: "다시 확인" }).click();
   await expect(page.getByText("판단 보류", { exact: true })).toBeVisible();
   await expect(page.getByText(/이전 브리핑입니다/)).toBeVisible();
