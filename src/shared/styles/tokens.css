@@ -1,0 +1,10 @@
+.investment-workspace {
+  --invest-surface: #fff;
+  --invest-tint: #f5f7fa;
+  --invest-line: #e4e9f0;
+  --invest-text: #182637;
+  --invest-muted: #516074;
+  --invest-accent: #175cd3;
+  --invest-accent-tint: #eaf2ff;
+  --invest-radius: 16px;
+}

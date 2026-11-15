@@ -8,7 +8,7 @@ test("홈에서 두 개별 종목의 차트 출처와 공식 IR을 열 수 있�
   await expect(page).toHaveURL(/\/assets\/SPCX$/);
   await expect(page.getByRole("link", { name: /공식 IR 열기/ })).toHaveAttribute("href", "https://ir.spacex.com/");
   await expect(page.locator("tv-advanced-chart")).toHaveAttribute("symbol", "NASDAQ:SPCX");
-  await page.getByRole("group", { name: "종목 선택" }).getByRole("link", { name: "CAMT" }).click();
+  await page.getByRole("group", { name: "종목 선택" }).getByRole("link", { name: /CAMT/ }).click();
   await expect(page).toHaveURL(/\/assets\/CAMT$/);
   await expect(page.getByRole("link", { name: /공식 IR 열기/ })).toHaveAttribute("href", "https://www.camtek.com/investors/");
   await expect(page.locator("tv-advanced-chart")).toHaveAttribute("symbol", "NASDAQ:CAMT");
