@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppLayout } from "../app/AppLayout";
 import { HomePage } from "./HomePage";
 import { AssetPage } from "./AssetPage";
@@ -9,26 +10,29 @@ import { RoomPage } from "./RoomPage";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 function renderRoute(path: string) {
-  render(<MemoryRouter initialEntries={[path]}><Routes><Route element={<AppLayout />}>
+  render(<QueryClientProvider client={new QueryClient()}><MemoryRouter initialEntries={[path]}><Routes><Route element={<AppLayout />}>
     <Route path="/" element={<HomePage />} />
     <Route path="/assets/:symbol" element={<AssetPage />} />
     <Route path="/rooms/:symbol" element={<RoomPage />} />
-  </Route></Routes></MemoryRouter>);
+  </Route></Routes></MemoryRouter></QueryClientProvider>);
 }
 
-test("홈의 종목과 공식 원문, 연구 보류를 구분한다", () => {
+test("홈은 종목 탐색과 공개 전 브리핑을 구분한다", () => {
   renderRoute("/");
   expect(screen.getByRole("link", { name: /나스닥 100 ETF/ })).toHaveAttribute("href", "/assets/QQQ");
   expect(screen.getByRole("link", { name: /S&P 500 ETF/ })).toHaveAttribute("href", "/assets/SPY");
   expect(screen.getByRole("link", { name: /스페이스X/ })).toHaveAttribute("href", "/assets/SPCX");
   expect(screen.getByRole("link", { name: /캠텍/ })).toHaveAttribute("href", "/assets/CAMT");
-  expect(screen.getByRole("link", { name: /연준에서 일정 보기/ })).toHaveAttribute("href", expect.stringContaining("federalreserve.gov"));
-  expect(screen.getByText("공개 전")).toBeInTheDocument();
+  expect(within(screen.getByRole("group", { name: "종목 선택" })).getAllByRole("link").map((link) => link.getAttribute("href")))
+    .toEqual(["/assets/CAMT", "/assets/SPCX", "/assets/AVGO"]);
+  expect(screen.getByRole("link", { name: /FOMC/ })).toHaveAttribute("href", expect.stringContaining("federalreserve.gov"));
+  expect(screen.getByText("아직 공개된 브리핑이 없어요")).toBeInTheDocument();
 });
 
 test.each([
   ["SPCX", "https://ir.spacex.com/"],
   ["CAMT", "https://www.camtek.com/investors/"],
+  ["AVGO", "https://investors.broadcom.com/"],
 ])("%s 종목방 직접 접근은 공식 IR과 차트가 있는 상세로 안내한다", (symbol, investorUrl) => {
   renderRoute(`/rooms/${symbol}`);
   expect(screen.getByRole("heading", { name: symbol })).toBeInTheDocument();
@@ -71,6 +75,6 @@ test("종목방은 글쓰기 연결 전 상태를 명확히 표시한다", () =>
 
 test("지원하지 않는 종목은 홈으로 이동한다", () => {
   renderRoute("/assets/<script>");
-  expect(screen.getByRole("heading", { name: /미국 경제 발표와/ })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "종목 브리핑" })).toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "<script>" })).not.toBeInTheDocument();
 });

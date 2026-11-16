@@ -1,0 +1,56 @@
+.workspace {
+  width: min(1320px, calc(100% - 48px));
+  margin-inline: auto;
+  padding-bottom: 108px;
+  color: var(--invest-text);
+}
+.header {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  min-height: 66px; border-bottom: 1px solid var(--invest-line);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(174px, 220px) minmax(0, 1fr) minmax(210px, 280px);
+  gap: clamp(14px, 2vw, 24px); align-items: start; padding-top: 22px;
+}
+.main, .context { display: grid; gap: 16px; min-width: 0; }
+.catalog {
+  min-width: 0; padding: 14px; border: 1px solid var(--invest-line);
+  border-radius: var(--invest-radius); background: var(--invest-surface);
+}
+.catalog h2 { font-size: 15px; margin: 4px 5px 12px; }
+.rows { display: grid; gap: 4px; }
+.row {
+  display: flex; align-items: center; min-height: 44px; gap: 8px; padding: 7px;
+  border-radius: 9px; text-decoration: none;
+}
+.row:hover { background: var(--invest-tint); }
+.row[aria-current="page"] { background: var(--invest-accent-tint); }
+.ticker { min-width: 39px; color: var(--invest-accent); font-weight: 800; font-size: 12px; }
+.name { color: var(--invest-muted); font-size: 13px; overflow-wrap: anywhere; }
+.title h1 { font-size: clamp(24px, 3vw, 32px); letter-spacing: -.04em; margin: 0; }
+.title p { margin: 6px 0 0; color: var(--invest-muted); line-height: 1.6; font-size: 14px; }
+.title a, .context a { overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions a {
+  display: inline-flex; align-items: center; min-height: 42px; padding: 8px 13px;
+  border: 1px solid var(--invest-line); border-radius: 10px; background: var(--invest-surface);
+  color: var(--invest-accent); text-decoration: none; font-size: 13px; font-weight: 700;
+}
+.actions a:hover { background: var(--invest-accent-tint); }
+
+@media (max-width: 950px) {
+  .grid { grid-template-columns: minmax(148px, 190px) minmax(0, 1fr); }
+  .context { grid-column: 2; }
+}
+@media (max-width: 620px) {
+  .workspace { width: calc(100% - 32px); }
+  .grid { grid-template-columns: minmax(0, 1fr); padding-top: 12px; }
+  .context { grid-column: auto; }
+  .catalog { padding: 8px; }
+  .catalog h2 { margin-bottom: 4px; }
+  .rows { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .row { justify-content: center; }
+  .ticker { min-width: 0; }
+  .name { display: none; }
+}

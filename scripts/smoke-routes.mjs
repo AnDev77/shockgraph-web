@@ -9,7 +9,7 @@ try {
   const address = server.httpServer.address();
   assert.ok(address && typeof address !== "string", "미리보기 서버 주소가 없습니다.");
   const origin = `http://127.0.0.1:${address.port}`;
-  const routes = ["/", "/assets/QQQ", "/assets/SPY", "/assets/SPCX", "/assets/CAMT",
+  const routes = ["/", "/assets/QQQ", "/assets/SPY", "/assets/SPCX", "/assets/CAMT", "/assets/AVGO",
     "/rooms/QQQ", "/rooms/SPY", "/signup", "/login"];
   let homeHtml = "";
 
