@@ -1,9 +1,8 @@
-import type { AssetSymbol } from "../market/assets";
 import { parseBriefing } from "./schemas";
 
 export const briefingEnabled = () => import.meta.env.VITE_BRIEFING_ENABLED === "true";
 
-function endpoint(symbol: AssetSymbol) {
+function endpoint(symbol: string) {
   const base = import.meta.env.VITE_BRIEFING_API_BASE_URL || "/api/v1/briefings";
   const url = new URL(base, window.location.origin);
   if ((!/^\/(?!\/)/.test(base) && url.protocol !== "https:") ||
@@ -11,12 +10,12 @@ function endpoint(symbol: AssetSymbol) {
       (!/^https:\/\//i.test(base) && url.origin !== window.location.origin)) {
     throw new Error("브리핑 API 주소를 확인해 주세요.");
   }
-  url.pathname = `${url.pathname.replace(/\/$/, "")}/${symbol}`;
+  url.pathname = `${url.pathname.replace(/\/$/, "")}/${encodeURIComponent(symbol)}`;
   url.searchParams.set("window", "7d");
   return url;
 }
 
-export async function getBriefing(symbol: AssetSymbol, signal: AbortSignal) {
+export async function getBriefing(symbol: string, signal: AbortSignal) {
   const response = await fetch(endpoint(symbol), {
     headers: { Accept: "application/json" },
     credentials: "omit",

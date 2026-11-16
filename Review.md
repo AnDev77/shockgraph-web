@@ -33,3 +33,13 @@
 - 최초 원격 브라우저 시험에서 요청 횟수로 대기→완료를 전환한 모의 API가 사용자 조작 전에 완료를 반환해 두 브리핑 사례가 실패했다. 요청 수 대신 시험에서 준비 완료 상태를 명시한 후 다시 확인을 눌러 검증하도록 고쳤다.
 - 로컬 Chromium은 실행 환경의 소켓 권한 제한으로 페이지 열기 전에 종료됐다. 브라우저 결과는 초안 PR의 Web quality 원격 게이트를 기준으로 확인한다. 합성 시험은 운영 AI·시세·메일·채팅 연결을 검증하지 않는다.
 - 운영 사용자·모델 성능·제품 수요는 이 작업으로 검증하지 않았다. 자동 병합 및 운영 전환은 수행하지 않는다.
+
+## 대표 종목과 관심 저장
+
+2026-11-16 KST. 브리핑 화면 초안 #9의 e133f05와 이전 관심 UI #5의 API 계약을 사용했다. 서버는 [Java 초안 #24](https://github.com/AnDev77/doChallenge/pull/24)를 기준으로 한다.
+
+- 변경: CAMT·SPCX·AVGO를 대표 종목 순서로 표시한다. QQQ·SPY는 시장 비교와 기존 토론에서 유지한다. 연결 모드의 React는 Java /api/v1/instruments를 사용하고 브리핑 미지원 종목의 분석 API를 부르지 않는다. 기존 회원의 저장 목록(빈 목록 포함)은 자동 변경하지 않는다. 정적 미리보기에서 저장을 표시하지 않으며, 연결 모드에서 조회 오류를 미리보기로 덮지 않는다.
+- 확인: src/features/market/catalog.ts, src/app/layouts/InvestmentLayout.tsx, src/pages/AssetPage.tsx, src/features/watchlist/Watchlist.tsx. 현재 다섯 종목이며 전체 종목 검색이나 영구 식별자 전환은 미구현이다.
+- 배포 조건: VITE_INSTRUMENTS_API_BASE_URL에 Java의 /api/v1/instruments 경로, VITE_WATCHLIST_ENABLED=true 및 VITE_WATCHLIST_API_BASE_URL에 같은 Java의 /api/v1/watchlist 경로가 필요하다. VITE_AUTH 설정과 Java 허용 Origin도 일치해야 한다. 공개 브리핑은 서버에 지원 여부가 등록되고 기존 브리핑 플래그가 켜진 경우만 노출된다.
+- 검증: 로컬 타입·린트, 테스트 22건, 빌드·정적 자산·직접 URL 10개를 확인했다. 브라우저 시험은 합성 인증/시세 위젯 차단/합성 API로 기존 SPY 목록 유지, AVGO 추가·삭제, 서버 오류, 미지원 시 브리핑 호출 금지를 검증하도록 추가했다. 현행 차트 공급자의 라이브 데이터, 운영 인증, 브라우저와 EC2 종단 연결은 별도 확인이다.
+- Learner’s High 후보: 이번 작업은 회원 분리·반복 저장·MySQL 재기동 보존의 사례다. 후속 사례는 비교 가능한 조회 부하 기준선, Python 장애 주입 중 회원·채팅 회귀다. 이번 브라우저의 목록 503 표시만으로 전체 장애 격리를 입증했다고 쓰지 않는다.
