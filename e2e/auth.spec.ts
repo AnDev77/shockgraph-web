@@ -35,7 +35,7 @@ test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async 
   await page.getByRole("main").getByRole("link", { name: "회원가입", exact: true }).click();
   await expect(page).toHaveURL(/\/signup\?room=SPY$/);
   const email = page.getByLabel("이메일", { exact: true });
-  await email.pressSequentially("person@example.invalid");
+  await email.fill("person@example.invalid");
   await expect(email).toHaveValue("person@example.invalid");
   expect(await email.evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(true);
   await page.getByRole("button", { name: "인증번호 받기" }).click();
