@@ -30,6 +30,7 @@ export function AssetPage() {
       <a href="#briefing">브리핑</a>
       {chartUrl && <a href="#chart">차트</a>}
       {asset.discussion && isRoomSymbol(symbol) && <Link to={`/rooms/${symbol}`}>{symbol} 토론방 미리보기</Link>}
+      {isRoomSymbol(symbol) && <Link to={`/assets/${symbol}/evidence`}>{symbol} 발표 근거 보기</Link>}
     </div>
     {catalog.connected && <Watchlist instruments={catalog.instruments} selected={asset} />}
     {asset.briefing ? <BriefingPanel symbol={asset.symbol} /> : <section className="panel" id="briefing">

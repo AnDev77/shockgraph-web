@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import { Brand } from "../app/AppLayout";
+import { authPath } from "../features/auth/room-entry";
 import { useSession } from "../features/auth/session";
 import { chatApi, chatEnabled, type RoomMessage } from "../features/chat/api";
 import { sources } from "../features/events/sources";
@@ -21,7 +22,9 @@ function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(enabled);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
+  const [readError, setReadError] = useState("");
+  const [writeError, setWriteError] = useState("");
+  const [reload, setReload] = useState(0);
   const lastId = useRef<number | null>(null);
   const pending = useRef<{ content: string; id: string } | null>(null);
 
@@ -43,9 +46,9 @@ function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
             return [...byId.values()].sort((a, b) => a.id - b.id).slice(-100);
           });
         }
-        setError("");
+        setReadError("");
       } catch (reason) {
-        if (active) setError(reason instanceof Error ? reason.message : "토론방 연결에 실패했습니다.");
+        if (active) setReadError(reason instanceof Error ? reason.message : "토론방 연결에 실패했습니다.");
       } finally {
         busy = false;
         if (active) setLoading(false);
@@ -54,7 +57,7 @@ function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
     void refresh();
     const timer = window.setInterval(() => void refresh(), 5000);
     return () => { active = false; window.clearInterval(timer); };
-  }, [enabled, symbol]);
+  }, [enabled, reload, symbol]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,16 +67,17 @@ function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
       ? pending.current : { content: trimmed, id: crypto.randomUUID() };
     pending.current = request;
     setSending(true);
-    setError("");
+    setWriteError("");
     try {
       const saved = await chatApi.post(symbol, trimmed, request.id, session.accessToken);
       setMessages((previous) => [...previous.filter((row) => row.id !== saved.id), saved]
         .sort((a, b) => a.id - b.id).slice(-100));
-      lastId.current = Math.max(lastId.current ?? 0, saved.id);
+      // A write response says nothing about intervening messages from other users.
+      // Only a completed list response may advance the read cursor.
       setContent("");
       pending.current = null;
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "글을 보내지 못했습니다.");
+      setWriteError(reason instanceof Error ? reason.message : "글을 보내지 못했습니다.");
     } finally {
       setSending(false);
     }
@@ -93,23 +97,30 @@ function ValidRoomPage({ symbol }: { symbol: RoomSymbol }) {
       </section> : <section className="room-chat" aria-label={`${symbol} 메시지`}>
         <div className="room-messages" role="log" aria-live="polite">
           {loading && <p>메시지를 불러오는 중입니다.</p>}
-          {!loading && messages.length === 0 && !error && <p>아직 글이 없습니다. 첫 의견을 남겨 주세요.</p>}
+          {!loading && messages.length === 0 && !readError && <p>아직 글이 없습니다. 첫 의견을 남겨 주세요.</p>}
           {messages.map((row) => <article className="room-message" key={row.id}>
             <div><strong>회원</strong><time dateTime={row.createdAt}>{new Date(row.createdAt).toLocaleString("ko-KR")}</time></div>
             <p>{row.content}</p>
           </article>)}
         </div>
-        {error && <p className="room-error" role="status">{error}</p>}
+        {readError && <div className="room-error">
+          <p role="status">{readError}</p>
+          <button type="button" onClick={() => {
+            setReadError(""); setLoading(true); setReload((value) => value + 1);
+          }}>목록 다시 불러오기</button>
+        </div>}
         {session ? <form className="room-compose" onSubmit={(event) => void submit(event)}>
           <label htmlFor="room-content">의견 쓰기</label>
-          <textarea id="room-content" value={content} maxLength={1000}
+          <textarea id="room-content" value={content} maxLength={1000} disabled={sending}
             onChange={(event) => setContent(event.target.value)} rows={3} />
+          {writeError && <p className="room-error" role="status">{writeError}</p>}
           <button type="submit" disabled={sending || !content.trim()}>{sending ? "보내는 중" : "게시하기"}</button>
-        </form> : <p className="room-login">글을 쓰려면 <Link to="/login">로그인</Link>해 주세요. 읽기는 누구나 가능합니다.</p>}
+        </form> : <p className="room-login">글을 쓰려면 <Link to={authPath("login", symbol)}>로그인</Link>해 주세요. 읽기는 누구나 가능합니다.</p>}
       </section>}
     </div><div className="secondary-column">
       <aside className="pinned-source"><span>함께 볼 자료</span><strong>FOMC 공식 일정과 성명</strong>
         <a href={sources[0].url} target="_blank" rel="noopener noreferrer">연준 원문 확인 ↗</a></aside>
+      <Link className="secondary-action" to={`/assets/${symbol}/evidence`}>{symbol} 발표 근거 보기 →</Link>
       <Link className="secondary-action" to={`/assets/${symbol}`}>{assets[symbol].symbol} 시장 흐름 보기 →</Link>
     </div></div>
   </main>;
