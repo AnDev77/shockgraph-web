@@ -1,6 +1,6 @@
 # RAG 브리핑 구조 및 화면 개편
 
-상태: 설계 / 2026-11-15. 현재 구현 경로와 아래 새로 만들 경로를 구분한다.
+상태: 설계 / 2026-11-16. 현재 구현 경로와 아래 새로 만들 경로를 구분한다.
 
 ## 기술 선택
 
@@ -45,13 +45,22 @@ flowchart TD
 
 ## 공개 API 계약 초안
 
-- GET /api/v1/instruments : 네 종목과 지원 기능 목록.
+- GET /api/v1/instruments?query={검색어}&limit=20 : Java가 보관한 미국 종목 목록에서 조회. 결과와 다음 페이지 커서, 종목별 기능 지원 여부를 반환한다. 홈 대표 목록은 검색 없이 별도로 `featured=true`로 조회한다.
 - GET /api/v1/briefings/{symbol}?window=7d : 공개된 최신 검증 브리핑. 임의 기간은 첫 주 미지원.
 - POST /api/v1/briefings/{symbol}/refresh : 인증·한도 확인 후 202/jobId, 캐시가 최신이면 기존 결과. 같은 자료 요청은 하나로 합침.
 - GET /api/v1/briefing-jobs/{id} : 요청 회원 권한 검사. 화면은 최대 60초 동안 3초 간격 조회 후 나중에 확인하도록 안내. 장시간 HTTP 연결에 생성 작업을 묶지 않는다.
-- 기존 /api/v1/watchlist : Java에서 SPCX/CAMT 허용, React의 응답 검증도 함께 확장.
+- 기존 /api/v1/watchlist : 기존 QQQ·SPY에 CAMT·SPCX·AVGO를 먼저 추가한다. 검색으로 확장할 때는 종목 목록에 등록된 고정 ID로 저장하고 기존 티커 경로와 저장 데이터를 호환시킨다. React의 응답 검증도 함께 확장한다.
 
 응답: status(ready/pending/insufficient_sources/failed), symbol, stance(bullish/bearish/mixed/withheld), summary[], bullish_factors[], bearish_factors[], change_conditions[], citations[], published_window, generated_at, last_source_check_at, freshness(stale/current), model_version. 각 요약·요인에는 citation_ids를 붙인다. 새 문서가 없는 것과 수집 장애를 구분한다. 근거 기간과 가격 전망 기간은 동일시하지 않는다.
+
+## 종목 검색과 기능 지원을 나누는 구조
+
+- Java가 종목 목록의 기준 데이터를 관리한다. 시작 범위는 미국 주요 거래소의 활성 보통주·ETF다. [Nasdaq Trader Symbol Directory](https://www.nasdaqtrader.com/trader.aspx?id=symboldirdefs)와 [Alpaca 자산 목록](https://docs.alpaca.markets/us/reference/get-v2-assets-1)은 후보이며, 목록의 저장·표시 범위와 실제 대상 종목을 확인한 뒤 한 공급원을 선택한다. 검색 요청마다 공급자를 부르지 않는다.
+- 상장 단위의 내부 `instrumentId`와 거래소·통화·티커·종목 유형·영문명·활성 상태·유효 기간을 보관한다. 공시 CIK는 발행사, 위젯 심볼은 공급자 매핑으로 분리한다. 이중 상장·티커 재사용·거래소 이동 시 과거 관심 목록과 가격을 다른 증권으로 옮기지 않는다. 상장 폐지 종목은 기존 저장 목록에서 상태를 표시한다.
+- 목록은 예약 작업으로 받아 테스트·미지원 유형을 걸러낸 뒤 갱신본의 형식·개수·대표 종목과 타임스탬프를 확인하고 교체한다. 비거나 잘못된 갱신본으로 마지막 정상 목록을 덮지 않는다. 기존 DB 조회에서 정규화된 티커 완전 일치 → 티커 접두사 → 이름/별칭 접두사를 우선한다. 출력 20개부터 시작하며 응답 지연·쿼리 계획을 측정한 뒤 검색 도구 추가를 검토한다.
+- UI는 검색 결과에서 `차트`, `AI 브리핑`, `예측`, `토론`의 지원 여부를 각각 확인한다. `브리핑 미지원`과 `지원되나 최근 자료 부족`은 다른 상태다. Python은 승인된 종목만 수집·실행하며 목록 크기에 비례해 자동으로 기사를 수집하거나 LLM을 호출하지 않는다.
+- 가격은 상세에서 확인 가능한 종목만 외부 위젯으로 표시한다. [TradingView 위젯 데이터 안내](https://www.tradingview.com/widget-docs/faq/data/)에 따라 제공 범위·지연을 확인하며 위젯에서 가격을 추출하거나 예측 입력으로 쓰지 않는다. 사용자의 기존 Alpaca 키에 공개 가격 재배포 권리가 있다고 가정하지 않는다. [Alpaca 일반 재배포 안내](https://alpaca.markets/support/redistribute-alpaca-api)를 출발점으로 별도 계약이 있으면 실제 계약 범위를 확인한다.
+- 완료 시험: 영문명·티커·대표 한글 별칭 검색, 철자/대소문자, 중복·폐지·티커 재사용, `SPCX` 2026-06-12 이전 이력 배제, 검색 공급원 중단 후 정상본 유지, 상세 차트 실패 안내, 관심 목록 유지, 미지원 종목에서 생성 작업 0건. 동일 조건의 조회 부하는 [Java 부하·장애 계획](https://github.com/AnDev77/doChallenge/blob/4d235b415310289a206c07efcab86854a7485dd8/docs/architecture/09-load-and-failure-validation.md)을 적용한다.
 
 ## 토스증권 참고 및 UI 결정
 
@@ -60,6 +69,7 @@ flowchart TD
 현재 문제: HomePage.tsx의 큰 FOMC 영역, 반복 SourceList, ResearchStatusCard가 핵심 자리를 차지한다. 상세에서도 차트 다음 동작이 자료 링크와 토론뿐이다. styles.css는 공통·페이지 스타일이 함께 있어 수정 영향 범위가 넓다. 기능별 폴더 자체는 유지하고 정보 배치와 컴포넌트 경계를 고친다.
 
 - 데스크톱: 상단 로고·종목 검색·계정, 좌측 관심 목록(약 240px), 중앙 선택 종목+AI 브리핑, 우측 근거 기사(약 300px). 화면이 좁아지면 우측은 탭으로 합친다. 거대한 소개 배너를 제거한다.
+- 홈 대표 표시는 CAMT·SPCX·AVGO 순서다. 검색한 다른 종목은 상세로 이동해 위젯 지원 여부와 관심 저장을 확인한다. QQQ·SPY는 시장 비교와 기존 종목방에서 접근한다.
 - 모바일: 관심 종목 가로 선택 → 종목명/갱신 시각 → 3줄 요약 → 강세/약세 근거. 차트·뉴스·토론은 탭으로 이동. 원문은 하단 패널로 열고 선택 종목은 유지한다.
 - 브리핑 상단: '최근 7일 소식 기준 · 강세 우세' 등 라벨 + 핵심 이유 1문장 + 갱신 시각. 하단에서 근거·반대 근거·판단 변경 조건·자료 부족을 펼친다.
 - 디자인: 흰/옅은 회색 배경, 본문 14~16px, 제목 20~24px, 8px 간격 단위. 행 중심 관심 목록, 절제된 카드/그림자, 행동 버튼에만 강조색. 강세/약세는 색과 글자를 함께 사용한다. 가격 숫자는 외부 차트가 제공하며 별도 공급원 없는 등락률을 만들지 않는다.
