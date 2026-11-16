@@ -1,4 +1,22 @@
 export const assets = {
+  CAMT: {
+    symbol: "CAMT", name: "캠텍 (Camtek)",
+    chartSymbol: "NASDAQ:CAMT",
+    chartUrl: "https://www.tradingview.com/symbols/NASDAQ-CAMT/",
+    investorUrl: "https://www.camtek.com/investors/",
+  },
+  SPCX: {
+    symbol: "SPCX", name: "스페이스X (SpaceX)",
+    chartSymbol: "NASDAQ:SPCX",
+    chartUrl: "https://www.tradingview.com/symbols/NASDAQ-SPCX/",
+    investorUrl: "https://ir.spacex.com/",
+  },
+  AVGO: {
+    symbol: "AVGO", name: "브로드컴 (Broadcom)",
+    chartSymbol: "NASDAQ:AVGO",
+    chartUrl: "https://www.tradingview.com/symbols/NASDAQ-AVGO/",
+    investorUrl: "https://investors.broadcom.com/",
+  },
   QQQ: {
     symbol: "QQQ", name: "나스닥 100 ETF",
     chartSymbol: "NASDAQ:QQQ",
@@ -8,18 +26,6 @@ export const assets = {
     symbol: "SPY", name: "S&P 500 ETF",
     chartSymbol: "AMEX:SPY",
     chartUrl: "https://www.tradingview.com/symbols/AMEX-SPY/",
-  },
-  SPCX: {
-    symbol: "SPCX", name: "스페이스X (SpaceX)",
-    chartSymbol: "NASDAQ:SPCX",
-    chartUrl: "https://www.tradingview.com/symbols/NASDAQ-SPCX/",
-    investorUrl: "https://ir.spacex.com/",
-  },
-  CAMT: {
-    symbol: "CAMT", name: "캠텍 (Camtek)",
-    chartSymbol: "NASDAQ:CAMT",
-    chartUrl: "https://www.tradingview.com/symbols/NASDAQ-CAMT/",
-    investorUrl: "https://www.camtek.com/investors/",
   },
 } as const;
 

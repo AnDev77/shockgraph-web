@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import type { AssetSymbol } from "../market/assets";
 import { briefingEnabled, getBriefing } from "./api";
 import type { Briefing } from "./schemas";
 import styles from "./BriefingPanel.module.css";
@@ -48,7 +47,7 @@ function BriefingResult({ data }: { data: ReadyBriefing }) {
   </>;
 }
 
-function ConnectedBriefing({ symbol }: { symbol: AssetSymbol }) {
+function ConnectedBriefing({ symbol }: { symbol: string }) {
   const query = useQuery({
     queryKey: ["briefing", symbol, "7d"],
     queryFn: ({ signal }) => getBriefing(symbol, signal),
@@ -69,7 +68,7 @@ function ConnectedBriefing({ symbol }: { symbol: AssetSymbol }) {
   </div>;
 }
 
-export function BriefingPanel({ symbol }: { symbol: AssetSymbol }) {
+export function BriefingPanel({ symbol }: { symbol: string }) {
   return <section className={styles.panel} aria-labelledby="briefing-title" id="briefing">
     <div className={styles.heading}><h2 id="briefing-title">AI 브리핑</h2><span>최근 7일</span></div>
     {briefingEnabled()

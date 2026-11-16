@@ -15,6 +15,7 @@ export default defineConfig({
     command: "npm run e2e:serve",
     url: "http://127.0.0.1:4174",
     reuseExistingServer: false,
-    env: { VITE_AUTH_ENABLED: "true", VITE_BRIEFING_ENABLED: "true" },
+    env: { VITE_AUTH_ENABLED: "true", VITE_BRIEFING_ENABLED: "true",
+      VITE_INSTRUMENTS_API_BASE_URL: "/api/v1/instruments", VITE_WATCHLIST_ENABLED: "true" },
   },
 });

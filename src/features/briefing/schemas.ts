@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { AssetSymbol } from "../market/assets";
 
 const claim = z.object({
   text: z.string().trim().min(1).max(1000),
@@ -30,7 +29,7 @@ const ready = z.object({
 
 export type Briefing = z.infer<typeof state> | z.infer<typeof ready>;
 
-export function parseBriefing(input: unknown, symbol: AssetSymbol): Briefing {
+export function parseBriefing(input: unknown, symbol: string): Briefing {
   const result = z.union([ready, state]).parse(input);
   if (result.symbol !== symbol) throw new Error("브리핑 종목이 일치하지 않습니다.");
   if (result.status === "ready") {
