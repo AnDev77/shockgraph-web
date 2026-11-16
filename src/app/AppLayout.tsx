@@ -6,10 +6,10 @@ import { isAssetSymbol } from "../features/market/assets";
 
 export function AppLayout() {
   const { symbol } = useParams();
-  const { hash } = useLocation();
+  const { hash, pathname } = useLocation();
   useEffect(() => {
-    if (hash === "#sources") document.getElementById("sources")?.scrollIntoView();
-  }, [hash]);
+    if (hash === "#sources" || hash === "#chart") document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash, pathname]);
   return <SessionProvider><div className="app-shell">
     <a className="skip-link" href="#main">본문으로 이동</a>
     <Outlet />

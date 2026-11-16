@@ -58,3 +58,51 @@
 - 우선 구현: 종목 식별·기능 지원 DTO 및 교차 앱 시험 → 실제 브리핑 조회 연결과 수집 상태 표시 → 채팅 전환 전략·시험 → 비동기 접수/복구 계약 → 모델 연동. 부하 기준선은 실제 조회 연결부터 측정한다.
 - 최종 판단: 구조 방향은 채택 가능하지만 현재 구현을 확장성 검증 완료로 승인할 수 없다. 명세의 중복·차이를 먼저 줄이고 한 번에 하나의 사용자 흐름을 실제로 연결한다.
 - 검증 한계: 읽기 전용 코드 검토 및 문서 링크 확인만 수행했다. 새 실행 코드·시험·운영 설정을 변경하지 않았고 문서에 기록한 결함을 해결했다고 주장하지 않는다. 리뷰 기록만 기존 계획 초안에 추가하며 병합·배포하지 않는다.
+
+---
+
+# Review: 종목 브리핑 화면과 API 조회 경계
+
+기준일: 2026-11-15 KST · 저장소: `AnDev77/shockgraph-web`
+
+## 시작 상태와 범위
+
+[제품 방향·배포 계획 #8](https://github.com/AnDev77/shockgraph-web/pull/8)의 첫 개발 작업이다. 기존 홈에서 FOMC 배너와 연구 상태가 종목 정보보다 먼저 보였다. 홈·상세를 종목 선택, 공개 브리핑, 출처 중심으로 재배치했다. SPCX·CAMT의 차트/IR이 있는 [종목 카탈로그 #7](https://github.com/AnDev77/shockgraph-web/pull/7)의 원격 커밋 `eaebd0b`에서 분리했다. 웹 main `f64feb8`, 회원별 관심 저장 #5, 모바일 가입 #6, Java 배포 #21은 별도 변경으로 확인했다. 이번 PR은 #7 위의 UI 한 단계이며 #5·#6·#8의 문서와 코드를 덮어쓰지 않는다.
+
+## 프로젝트 구조 변경
+
+| 담당 | 직접 확인할 파일 | 바뀐 내용 |
+|---|---|---|
+| 앱 레이아웃 | [InvestmentLayout.tsx](src/app/layouts/InvestmentLayout.tsx), [InvestmentLayout.module.css](src/app/layouts/InvestmentLayout.module.css) | 홈과 상세가 종목 목록·헤더·본문·자료 영역을 공유. 넓은 화면은 3열, 좁은 화면은 상단 종목 선택과 단일 열 |
+| 화면 조합 | [HomePage.tsx](src/pages/HomePage.tsx), [AssetPage.tsx](src/pages/AssetPage.tsx), [AppLayout.tsx](src/app/AppLayout.tsx) | 홈은 SPCX 브리핑과 종목 탐색. 상세는 브리핑→기존 차트→공식 자료를 연결. QQQ/SPY만 기존 토론방 연결. 홈에서 상세 차트로 바로 이동하는 앵커 처리 |
+| 브리핑 기능 | [BriefingPanel.tsx](src/features/briefing/BriefingPanel.tsx), [BriefingPanel.module.css](src/features/briefing/BriefingPanel.module.css) | 미공개·로딩·준비 중·자료 부족·조회 실패·이전 결과를 구분. 서버가 준비한 요약마다 출처 링크 연결 |
+| API 경계 | [api.ts](src/features/briefing/api.ts), [schemas.ts](src/features/briefing/schemas.ts) | 종목·기간별 요청과 Zod 응답 검증. 회원 토큰 없이 공개 자료만 조회 |
+| 공통 스타일 | [tokens.css](src/shared/styles/tokens.css) | 배경·테두리·본문색·강조색 토큰의 적용 범위를 새 작업 화면으로 한정. 가입·로그인·채팅 스타일 영향 최소화 |
+
+## 데이터 흐름과 설정
+
+1. 사용자 화면이 카탈로그나 URL로 종목을 선택한다. 계정별 목록을 저장하는 기능은 아직 없어서 이 목록을 **종목 둘러보기**로 표시한다.
+2. 프론트 빌드 변수 `VITE_BRIEFING_ENABLED=true`일 때만 TanStack Query가 `GET /api/v1/briefings/{symbol}?window=7d`를 요청한다. API 경로 기본값은 같은 출처의 `/api/v1/briefings`이며 별도 API 호스트는 `VITE_BRIEFING_API_BASE_URL`로 지정한다. 운영 외부 호스트는 HTTPS를 사용한다. 기능 플래그 기본값은 꺼짐이며, 이 경우 요청 없이 미공개 문구만 렌더링한다.
+3. 응답은 최상위 JSON이며 `symbol`, `status`를 포함한다. 상태가 `ready`이면 `stance`, `summary`, `bullish_factors`, `bearish_factors`, `change_conditions`, `citations`, `generated_at`, `freshness`도 필수다. 다른 종목의 응답, 존재하지 않는 인용 ID, 중복 출처 ID, HTTPS가 아닌 출처를 거부한다. 문장과 원문의 의미가 맞는지는 AI 백엔드·평가에서 별도로 확인해야 한다.
+4. Query 키는 종목과 7일 범위로 분리된다. 요청 취소와 10초 제한을 적용하고, 준비 중·자료 부족·실패 시 읽기 요청만 다시 할 수 있다. 강세·약세는 서버 응답에 근거하며 프론트에서 판단하지 않는다.
+
+계획상 다음 연결은 React → Java 공개 API → 내부 FastAPI 브리핑 API 및 Python worker다. Java는 회원·관심 저장·채팅, Python은 수집·검색·생성·검증을 담당한다. 이번 변경에는 Java·Python 실행 코드, 생성 요청, 운영 API 연결, 회원 데이터 이관이 없다. 회원별 관심 저장·필터, 실제 브리핑 응답과 공개 배포가 다음 인수 범위다.
+
+## 검증 및 한계
+
+- 중간: 홈·상세의 공통 레이아웃을 먼저 분리한 뒤, 공개 전에는 요청하지 않고 서버 응답이 준비된 경우에만 결과를 그리도록 했다. 기존 공시 링크와 차트 링크가 사라지지 않는지 회귀 시험을 갱신했다.
+- 완료: 로컬 타입 검사와 ESLint, Vitest 전체 21건, Vite 프로덕션 빌드, HTML 참조 자산 2개, 직접 URL 9개가 통과했다. 출처가 없는 판단 변경 조건과 잘못된 종목·출처 URL을 거부하는 사례를 [스키마 시험](src/features/briefing/schemas.test.ts)에 포함했다.
+- [Playwright](e2e/briefing.spec.ts)는 실제 브라우저에 합성 API 응답을 주고 SPCX → CAMT → SPY를 탐색한다. 대기에서 다시 조회해 출처를 열고, 전환 후 다른 종목의 요약이 남지 않는지 확인한다. 모바일에서는 360px 가로 넘침을 검사한다.
+- 최초 원격 브라우저 시험에서 요청 횟수로 대기→완료를 전환한 모의 API가 사용자 조작 전에 완료를 반환해 두 브리핑 사례가 실패했다. 요청 수 대신 시험에서 준비 완료 상태를 명시한 후 다시 확인을 눌러 검증하도록 고쳤다.
+- 로컬 Chromium은 실행 환경의 소켓 권한 제한으로 페이지 열기 전에 종료됐다. 브라우저 결과는 초안 PR의 Web quality 원격 게이트를 기준으로 확인한다. 합성 시험은 운영 AI·시세·메일·채팅 연결을 검증하지 않는다.
+- 운영 사용자·모델 성능·제품 수요는 이 작업으로 검증하지 않았다. 자동 병합 및 운영 전환은 수행하지 않는다.
+
+## 대표 종목과 관심 저장
+
+2026-11-16 KST. 브리핑 화면 초안 #9의 e133f05와 이전 관심 UI #5의 API 계약을 사용했다. 서버는 [Java 초안 #24](https://github.com/AnDev77/doChallenge/pull/24)를 기준으로 한다.
+
+- 변경: CAMT·SPCX·AVGO를 대표 종목 순서로 표시한다. QQQ·SPY는 시장 비교와 기존 토론에서 유지한다. 연결 모드의 React는 Java /api/v1/instruments를 사용하고 브리핑 미지원 종목의 분석 API를 부르지 않는다. 기존 회원의 저장 목록(빈 목록 포함)은 자동 변경하지 않는다. 정적 미리보기에서 저장을 표시하지 않으며, 연결 모드에서 조회 오류를 미리보기로 덮지 않는다.
+- 확인: src/features/market/catalog.ts, src/app/layouts/InvestmentLayout.tsx, src/pages/AssetPage.tsx, src/features/watchlist/Watchlist.tsx. 현재 다섯 종목이며 전체 종목 검색이나 영구 식별자 전환은 미구현이다.
+- 배포 조건: VITE_INSTRUMENTS_API_BASE_URL에 Java의 /api/v1/instruments 경로, VITE_WATCHLIST_ENABLED=true 및 VITE_WATCHLIST_API_BASE_URL에 같은 Java의 /api/v1/watchlist 경로가 필요하다. VITE_AUTH 설정과 Java 허용 Origin도 일치해야 한다. 공개 브리핑은 서버에 지원 여부가 등록되고 기존 브리핑 플래그가 켜진 경우만 노출된다.
+- 검증: 로컬 타입·린트, 테스트 22건, 빌드·정적 자산·직접 URL 10개를 확인했다. 브라우저 시험은 합성 인증/시세 위젯 차단/합성 API로 기존 SPY 목록 유지, AVGO 추가·삭제, 서버 오류, 미지원 시 브리핑 호출 금지를 검증하도록 추가했다. 현행 차트 공급자의 라이브 데이터, 운영 인증, 브라우저와 EC2 종단 연결은 별도 확인이다.
+- Learner’s High 후보: 이번 작업은 회원 분리·반복 저장·MySQL 재기동 보존의 사례다. 후속 사례는 비교 가능한 조회 부하 기준선, Python 장애 주입 중 회원·채팅 회귀다. 이번 브라우저의 목록 503 표시만으로 전체 장애 격리를 입증했다고 쓰지 않는다.

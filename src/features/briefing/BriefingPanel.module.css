@@ -1,0 +1,41 @@
+.panel {
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid var(--invest-line);
+  border-radius: var(--invest-radius);
+  background: var(--invest-surface);
+  overflow-wrap: anywhere;
+}
+.heading, .meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.heading h2 { margin: 0; font-size: 20px; }
+.heading span, .meta span, .muted, .notice { color: var(--invest-muted); font-size: 13px; line-height: 1.6; }
+.panel h3 { margin: 18px 0 6px; font-size: 15px; }
+.meta { margin-top: 16px; }
+.stance { padding: 5px 9px; border-radius: 8px; font-size: 13px; background: var(--invest-tint); }
+.stance[data-stance="bullish"] { background: #fff0ee; color: #9f2b28; }
+.stance[data-stance="bearish"] { background: var(--invest-accent-tint); color: var(--invest-accent); }
+.claims { padding-left: 20px; margin: 8px 0; font-size: 14px; line-height: 1.7; }
+.claims li + li { margin-top: 6px; }
+.references { display: inline-flex; flex-wrap: wrap; gap: 5px; margin-left: 7px; }
+.references a, .sources a { color: var(--invest-accent); }
+.factors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+.factors > :last-child { grid-column: 1 / -1; }
+.sources { margin-top: 16px; border-top: 1px solid var(--invest-line); padding-top: 13px; font-size: 13px; }
+.sources summary { cursor: pointer; font-weight: 700; }
+.sources li { margin: 8px 0; }
+.sources time { display: block; margin-top: 3px; color: var(--invest-muted); }
+.state { margin-top: 16px; padding: 16px; border-radius: 12px; background: var(--invest-tint); }
+.state p { margin: 0; color: var(--invest-muted); font-size: 14px; line-height: 1.6; }
+.state strong + p { margin-top: 6px; }
+.state button {
+  min-height: 36px; margin-top: 10px; padding: 4px 12px; border: 1px solid var(--invest-line);
+  border-radius: 8px; background: var(--invest-surface); color: var(--invest-accent); cursor: pointer;
+}
+.state button:disabled { cursor: wait; opacity: .7; }
+
+@media (max-width: 550px) { .factors { grid-template-columns: minmax(0, 1fr); } }
