@@ -16,14 +16,14 @@ function renderRoute(path: string) {
   </Route></Routes></MemoryRouter>);
 }
 
-test("홈의 종목과 공식 원문, 연구 보류를 구분한다", () => {
+test("홈은 종목 탐색과 공개 전 브리핑을 구분한다", () => {
   renderRoute("/");
   expect(screen.getByRole("link", { name: /나스닥 100 ETF/ })).toHaveAttribute("href", "/assets/QQQ");
   expect(screen.getByRole("link", { name: /S&P 500 ETF/ })).toHaveAttribute("href", "/assets/SPY");
   expect(screen.getByRole("link", { name: /스페이스X/ })).toHaveAttribute("href", "/assets/SPCX");
   expect(screen.getByRole("link", { name: /캠텍/ })).toHaveAttribute("href", "/assets/CAMT");
-  expect(screen.getByRole("link", { name: /연준에서 일정 보기/ })).toHaveAttribute("href", expect.stringContaining("federalreserve.gov"));
-  expect(screen.getByText("공개 전")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /FOMC/ })).toHaveAttribute("href", expect.stringContaining("federalreserve.gov"));
+  expect(screen.getByText("아직 공개된 브리핑이 없어요")).toBeInTheDocument();
 });
 
 test.each([
@@ -71,6 +71,6 @@ test("종목방은 글쓰기 연결 전 상태를 명확히 표시한다", () =>
 
 test("지원하지 않는 종목은 홈으로 이동한다", () => {
   renderRoute("/assets/<script>");
-  expect(screen.getByRole("heading", { name: /미국 경제 발표와/ })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "종목 브리핑" })).toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "<script>" })).not.toBeInTheDocument();
 });
