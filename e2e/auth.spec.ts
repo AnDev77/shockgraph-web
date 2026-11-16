@@ -34,6 +34,8 @@ test("토론방에서 이메일로 가입하고 돌아와 글을 쓴다", async 
   await page.getByRole("main").getByRole("link", { name: "로그인", exact: true }).click();
   await page.getByRole("main").getByRole("link", { name: "회원가입", exact: true }).click();
   await expect(page).toHaveURL(/\/signup\?room=SPY$/);
+  await expect(page.getByRole("heading", { name: "회원가입" })).toBeVisible();
+  await page.waitForLoadState("networkidle");
   const email = page.getByLabel("이메일", { exact: true });
   await email.fill("person@example.invalid");
   await expect(email).toHaveValue("person@example.invalid");
