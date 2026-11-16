@@ -11,7 +11,7 @@ export function HomePage() {
     <header className="topbar"><Brand /><AuthNav /></header>
     <section className="intro"><p className="eyebrow">경제 발표와 시장</p>
       <h1>미국 경제 발표와<br /><em>QQQ·SPY를 함께 살펴보세요.</em></h1>
-      <p>공식 발표 일정과 두 종목의 차트를 한곳에서 확인하세요.</p></section>
+      <p>공식 발표 일정과 ETF·개별 종목 차트를 한곳에서 확인하세요.</p></section>
     <div className="home-grid"><div className="primary-column">
       <section className="featured" aria-labelledby="feature-title">
         <span className="feature-kicker">미국 금리 결정 회의</span>
@@ -21,12 +21,12 @@ export function HomePage() {
       </section>
       <section className="section-block" aria-labelledby="assets-title">
         <div className="section-head"><div><p className="eyebrow">종목 살펴보기</p>
-          <h2 id="assets-title">QQQ·SPY 시장 흐름</h2></div>
-          <span className="section-note">현재 제공: QQQ · SPY</span></div>
+          <h2 id="assets-title">ETF와 개별 종목</h2></div></div>
         <div className="asset-list">{Object.values(assets).map((asset) =>
           <Link className="asset-card" key={asset.symbol} to={`/assets/${asset.symbol}`}>
             <span className="ticker">{asset.symbol}</span><span><strong>{asset.name}</strong>
-              <small>차트와 공식 발표 자료 보기</small></span><span className="chevron" aria-hidden="true">→</span>
+              <small>{"investorUrl" in asset ? "차트와 기업 공식 자료 보기" : "차트와 공식 발표 자료 보기"}</small>
+            </span><span className="chevron" aria-hidden="true">→</span>
           </Link>)}</div>
       </section>
       <ResearchStatusCard />
