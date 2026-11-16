@@ -45,7 +45,11 @@ export function SignupPage() {
     if (busy) return;
     const data = new FormData(event.currentTarget);
     setMessage("");
-    if (stage.step === "email") send.mutate(emailInput.trim());
+    if (stage.step === "email") {
+      const email = String(data.get("email")).trim();
+      setEmailInput(email);
+      send.mutate(email);
+    }
     else if (stage.step === "code") confirm.mutate({ email: stage.email, code: String(data.get("code")) });
     else if (stage.step === "details") {
       if (Date.now() >= stage.expiresAt) { setStage({ step: "email" }); setMessage("이메일을 다시 인증해 주세요."); return; }
@@ -61,7 +65,7 @@ export function SignupPage() {
       : <><p>이메일을 확인한 뒤 계정을 만들 수 있어요.</p>
         <ol className="auth-steps" aria-label="가입 단계"><li aria-current={stage.step === "email" ? "step" : undefined}>이메일</li><li aria-current={stage.step === "code" ? "step" : undefined}>인증번호</li><li aria-current={stage.step === "details" ? "step" : undefined}>가입 정보</li></ol>
         <form onSubmit={submit} key={stage.step}><fieldset disabled={busy}>
-          {stage.step === "email" && <AuthField label="이메일" name="email" type="email" autoComplete="email" maxLength={254} value={emailInput} onChange={(event) => setEmailInput(event.target.value)} />}
+          {stage.step === "email" && <AuthField label="이메일" name="email" type="email" autoComplete="email" maxLength={254} defaultValue={emailInput} />}
           {stage.step === "code" && <><p className="auth-email">{stage.email}</p><AuthField label="인증번호 6자리" name="code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" /></>}
           {stage.step === "details" && <><p className="auth-email">{stage.email}</p><AuthField label="닉네임" name="nickname" minLength={2} maxLength={30} autoComplete="nickname" /><AuthField label="비밀번호 (8~64자)" name="password" type="password" minLength={8} maxLength={64} autoComplete="new-password" /><AuthField label="비밀번호 확인" name="passwordConfirm" type="password" minLength={8} maxLength={64} autoComplete="new-password" /></>}
           <button className="auth-submit" type="submit" disabled={busy || (stage.step === "email" && remaining > 0)}>{busy ? "처리 중…" : stage.step === "email" ? "인증번호 받기" : stage.step === "code" ? "인증번호 확인" : "가입하기"}</button>
