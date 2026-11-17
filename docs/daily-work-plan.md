@@ -1,3 +1,9 @@
+# 일정 변경 (2026-11-17 KST)
+
+Java doChallenge가 공시 수집·RAG·Kafka 생성 작업을 맡는 것으로 변경했다. 아래 11/16~11/20 표의 Java→FastAPI 연결 및 Python 수집·AI 작업은 이전 일정 이력이다. 새 순서는 세 저장소 문서 정렬 → Java 호환 기반 → Java CAMT 수집·검색·LLM 초안·사람 검토 → Java Kafka 실제 브로커 시험 → 기존 GET의 React 종단 확인이다. 실제 기간·모델·운영 자원은 검증해 다시 산정한다. 브리핑 지원이 확인되지 않은 종목은 미지원 또는 자료 부족을 구분해 표시한다.
+
+## 이전 일정 이력
+
 # 이번 주 배포 계획: 관심 종목 AI 브리핑
 
 기준일 2026-11-16 KST. 11/16 월~11/20 금 실행 계획. 현재 방향은 [제품 방향](current-product-direction.md), 구조·API·화면은 [브리핑 구조](rag-briefing-architecture.md)를 따른다. 이전 계획은 Git 이력에 보존한다.
