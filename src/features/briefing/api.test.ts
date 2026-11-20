@@ -18,8 +18,8 @@ describe("CAMT Java briefing endpoint", () => {
 
     expect(briefingEnabled()).toBe(true);
     expect((await getBriefing("CAMT", new AbortController().signal)).status).toBe("insufficient_sources");
-    expect(fetch.mock.calls[0][0].toString()).toBe("https://api.example.test/api/v1/briefings/CAMT?window=7d");
-    expect(fetch.mock.calls[0][1].credentials).toBe("omit");
+    expect(String(fetch.mock.calls.at(0)?.[0])).toBe("https://api.example.test/api/v1/briefings/CAMT?window=7d");
+    expect(fetch.mock.calls.at(0)?.[1]?.credentials).toBe("omit");
   });
 
   it("honors an explicit disable and refuses an insecure Java origin", async () => {
