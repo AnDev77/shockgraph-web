@@ -106,3 +106,10 @@
 - 배포 조건: VITE_INSTRUMENTS_API_BASE_URL에 Java의 /api/v1/instruments 경로, VITE_WATCHLIST_ENABLED=true 및 VITE_WATCHLIST_API_BASE_URL에 같은 Java의 /api/v1/watchlist 경로가 필요하다. VITE_AUTH 설정과 Java 허용 Origin도 일치해야 한다. 공개 브리핑은 서버에 지원 여부가 등록되고 기존 브리핑 플래그가 켜진 경우만 노출된다.
 - 검증: 로컬 타입·린트, 테스트 22건, 빌드·정적 자산·직접 URL 10개를 확인했다. 브라우저 시험은 합성 인증/시세 위젯 차단/합성 API로 기존 SPY 목록 유지, AVGO 추가·삭제, 서버 오류, 미지원 시 브리핑 호출 금지를 검증하도록 추가했다. 현행 차트 공급자의 라이브 데이터, 운영 인증, 브라우저와 EC2 종단 연결은 별도 확인이다.
 - Learner’s High 후보: 이번 작업은 회원 분리·반복 저장·MySQL 재기동 보존의 사례다. 후속 사례는 비교 가능한 조회 부하 기준선, Python 장애 주입 중 회원·채팅 회귀다. 이번 브라우저의 목록 503 표시만으로 전체 장애 격리를 입증했다고 쓰지 않는다.
+# CAMT Java 브리핑 웹 연결 (2026-11-20)
+
+- 시작: 웹 main `b84586b`의 CAMT 패널·API 계약은 존재했으나 `VITE_BRIEFING_ENABLED=true`와 두 API 주소를 각각 설정해야 했다. Java main `e990971`은 승인 조회가 있으나 종목 목록의 CAMT 지원 플래그는 `false`였다. 실제 키·DB·운영 배포는 확인되지 않았다.
+- 변경 파일·구조: [브리핑 API](src/features/briefing/api.ts)가 Java 종목 목록 주소에서 같은 호스트의 브리핑 경로를 유도한다. CAMT만 패널을 표시하는 조건은 Java 종목 목록의 `briefing` 값으로 판단한다. `VITE_BRIEFING_ENABLED=false`는 명시적인 중단 설정으로 유지한다. [단위 시험](src/features/briefing/api.test.ts), [브라우저 시험](e2e/briefing.spec.ts), [연결 절차](docs/camt-java-briefing-connection.md), 제품 방향·AGENTS를 수정했다.
+- 설계 이유: 공개 여부는 Java의 승인 상태와 목록 계약을 따른다. 기본적으로 기능 플래그를 이중으로 켜야 하는 실수를 줄이고, 목록/브리핑이 다른 서버로 향하는 설정 오류를 줄인다. 브라우저에는 모델 키·DB 비밀을 넘기지 않는다.
+- 검증: 원격 check/test/build와 데스크톱·모바일 Playwright를 확인한다. API 단위 시험은 HTTPS 주소 유도와 명시적 중단을, 브라우저 시험은 합성 Java 형식의 CAMT 요약·SEC 링크·판단 보류 표시를 다룬다. 실제 Java HTTP와 실제 SEC/Gemini 응답의 화면 종단 시험·Vercel 배포는 별도 확인이 필요하다.
+- 사용자 요청의 오늘 목표: 코드·합성 한 종목 통합 시험은 진행한다. 실제 CAMT 공시를 사용한 모델 생성 및 공개 브라우저 시험은 공급자 키·SEC 식별자·운영 DB/API 호스트가 확보돼야 완료로 판정한다. [Java Review](https://github.com/AnDev77/doChallenge/blob/main/Review.md)에 서버 측 설계·러너스하이·포트폴리오 근거를 별도로 둔다.

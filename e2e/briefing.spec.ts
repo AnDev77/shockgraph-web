@@ -37,3 +37,22 @@ test("종목 전환과 다시 확인 후 검증된 출처만 표시한다", asyn
   expect(requests.every((path) => path.endsWith("/CAMT"))).toBe(true);
   await expect(page.getByText("합성 시험 문장")).toHaveCount(0);
 });
+
+test("CAMT Java 승인 응답의 요약과 SEC 원문을 화면에 표시한다", async ({ page }) => {
+  await page.route("https://widgets.tradingview-widget.com/**", (route) => route.abort());
+  await serveInstruments(page, true);
+  await page.route("**/api/v1/briefings/CAMT?window=7d", (route) => route.fulfill({ json: {
+    symbol: "CAMT", status: "ready", stance: "withheld", freshness: "current",
+    generated_at: "2026-11-20T00:00:00Z",
+    summary: [{ text: "공시의 매출 관련 내용을 확인했다.", citation_ids: ["42"] }],
+    bullish_factors: [], bearish_factors: [], change_conditions: [],
+    citations: [{ id: "42", title: "SEC 공시",
+      url: "https://www.sec.gov/Archives/edgar/data/1109138/filing.htm",
+      published_at: "2026-11-19T23:00:00Z" }],
+  } }));
+  await page.goto("/assets/CAMT");
+  await expect(page.getByText("공시의 매출 관련 내용을 확인했다.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "출처 1: SEC 공시" }))
+    .toHaveAttribute("href", "https://www.sec.gov/Archives/edgar/data/1109138/filing.htm");
+  await expect(page.getByText("판단 보류", { exact: true })).toBeVisible();
+});
