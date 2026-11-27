@@ -1,6 +1,6 @@
 # 현재 제품 방향: 관심 종목 RAG 브리핑
 
-기준일: 2026-11-17 KST. Java doChallenge가 CAMT 공시 수집·RAG·LLM 초안·Kafka 생성 작업과 브리핑 조회를 소유한다. 기존 Python RAG 설계는 이력이다. 현재 Java는 Python 결과를 읽는 게이트웨이만 구현했으며 Java RAG는 미구현이다. 11/18·11/20의 기존 목표는 Java RAG 인수 일정으로 승계하지 않는다. 이 문서와 [일일 계획](daily-work-plan.md)이 현재 기준이다. 과거 방향과 일정은 Git 이력에 남긴다. 이번 문서는 계획이며 구현·운영 성과가 아니다.
+제품 범위 기준일 2026-11-16 KST, 연동 상태 갱신 2026-11-20 KST. 이 문서와 [일일 계획](daily-work-plan.md)이 현재 기준이다. 과거 방향과 일정은 Git 이력에 남긴다. Java가 공시 RAG·검토·공개 브리핑을 소유하고 Python은 예측·가격 연구를 담당한다. [CAMT Java 연결 절차](camt-java-briefing-connection.md)의 자동 시험은 운영 성과가 아니다.
 
 ## 제품 약속과 첫 범위
 

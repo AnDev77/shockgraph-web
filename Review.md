@@ -118,3 +118,11 @@
 - 변경 파일·구조: AGENTS.md와 현재 방향·일일 계획·브리핑 구조 문서에서 Java가 수집·RAG·Kafka를 소유하도록 명시했다. 과거 Python 중심 구조는 이력으로 구분한다.
 - 이유: 사용자는 Java에서 RAG를 구현하기로 했다. 기존 웹 화면은 Java 공개 GET을 계속 사용하므로 이 단계의 화면 코드 변경은 없다.
 - 추가 기능·검증: 문서 지침만 수정했다. 기존 Java 게이트웨이·웹 브리핑 스키마를 확인했다. Java RAG/실 Kafka/LLM·운영 배포는 아직 검증되지 않았다.
+
+# CAMT Java 브리핑 웹 연결 (2026-11-20)
+
+- 시작: 웹 main `b84586b`의 CAMT 패널·API 계약은 존재했으나 `VITE_BRIEFING_ENABLED=true`와 두 API 주소를 각각 설정해야 했다. Java main `e990971`은 승인 조회가 있으나 종목 목록의 CAMT 지원 플래그는 `false`였다. 실제 키·DB·운영 배포는 확인되지 않았다.
+- 변경 파일·구조: [브리핑 API](src/features/briefing/api.ts)가 Java 종목 목록 주소에서 같은 호스트의 브리핑 경로를 유도한다. CAMT만 패널을 표시하는 조건은 Java 종목 목록의 `briefing` 값으로 판단한다. `VITE_BRIEFING_ENABLED=false`는 명시적인 중단 설정으로 유지한다. [단위 시험](src/features/briefing/api.test.ts), [브라우저 시험](e2e/briefing.spec.ts), [연결 절차](docs/camt-java-briefing-connection.md), 제품 방향·AGENTS를 수정했다.
+- 설계 이유: 공개 여부는 Java의 승인 상태와 목록 계약을 따른다. 기본적으로 기능 플래그를 이중으로 켜야 하는 실수를 줄이고, 목록/브리핑이 다른 서버로 향하는 설정 오류를 줄인다. 브라우저에는 모델 키·DB 비밀을 넘기지 않는다.
+- 검증: 원격 check/test/build와 데스크톱·모바일 Playwright를 확인한다. API 단위 시험은 HTTPS 주소 유도와 명시적 중단을, 브라우저 시험은 합성 Java 형식의 CAMT 요약·SEC 링크·판단 보류 표시를 다룬다. 실제 Java HTTP와 실제 SEC/Gemini 응답의 화면 종단 시험·Vercel 배포는 별도 확인이 필요하다.
+- 사용자 요청의 오늘 목표: 코드·합성 한 종목 통합 시험은 진행한다. 실제 CAMT 공시를 사용한 모델 생성 및 공개 브라우저 시험은 공급자 키·SEC 식별자·운영 DB/API 호스트가 확보돼야 완료로 판정한다. [Java Review](https://github.com/AnDev77/doChallenge/blob/main/Review.md)에 서버 측 설계·러너스하이·포트폴리오 근거를 별도로 둔다.
