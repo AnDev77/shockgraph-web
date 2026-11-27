@@ -1,3 +1,11 @@
+# 최신 RAG 책임 결정 (2026-11-17 KST)
+
+Java doChallenge가 SEC 공시 수집·정제·근거 검색·LLM 생성·사람 검토·Kafka 생산/소비·브리핑 DB·공개 GET을 소유한다. React는 기존 GET과 출처·freshness 응답 계약을 유지한다. Python ShockGarph_AI는 예측·가격 연구와 과거 #18의 출처/인용 검증 사례를 담당한다. 현재 Java의 Python 조회 게이트웨이는 이전 구현이며 Java RAG·Kafka는 미구현이다.
+
+첫 구현 순서: Java 호환 버전과 회귀 → CAMT 문서 수집·저장 → 키워드/임베딩 검색·LLM 초안·검토 → Java Kafka 생성 작업의 실제 브로커 검증 → 웹 조회 인수. 아래 Python FastAPI·LangGraph·별도 Python briefing DB·Kafka 미도입 설명은 **2026-11-16 당시 설계 이력**이며 현재 실행 지시가 아니다. 당시 그림과 상세 UX 정책은 코드·실제 데이터 계약에 맞춰 별도 단계에서 재검토한다.
+
+---
+
 # RAG 브리핑 구조 및 화면 개편
 
 상태: 설계 / 2026-11-16. 현재 구현 경로와 아래 새로 만들 경로를 구분한다.
